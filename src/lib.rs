@@ -2,8 +2,18 @@ use std::{fmt,io};
 
 pub fn run() {
     let mut a = TicTacToeGame::new();
-    a.make_move("X", "A 2");
-    println!("{}", a.get_state_display())
+    let mut player = "X";
+
+    loop {
+        let pos = &get_user_input("Move  ");
+        a.make_move(player, pos);
+        println!("{}", a.get_state_display());
+        player = if player == "X" {
+            "O"
+        } else {
+            "X"
+        }
+    }
 
 }
 
@@ -64,7 +74,8 @@ impl TicTacToeGame {
             "C" => 3,
             _ => panic!("column invalid")
         };
-        let row:usize = pos_split[1].parse::<usize>().unwrap();
+
+        let row:usize = pos_split[1].trim().parse::<usize>().unwrap();
         
         let board_square: TicTacToeSquare = match player {
             "X" => TicTacToeSquare::X,
@@ -76,7 +87,9 @@ impl TicTacToeGame {
     }
 }
 
-fn get_user_input() -> String {
+fn get_user_input(prompt: &str) -> String {
+    println!("{}", prompt);
+
     let mut guess = String::new();
 
         io::stdin()
