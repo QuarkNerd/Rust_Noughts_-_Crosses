@@ -54,4 +54,23 @@ impl TicTacToeGame {
         display.push_str(blank_line);
         display.to_string()
     }
+
+    pub fn make_move(&mut self, player: &str, pos: &str) {
+        let pos_split: Vec<&str> = pos.split(" ").collect();
+        let column: usize = match pos_split[0] {
+            "A" => 1,
+            "B" => 2,
+            "C" => 3,
+            _ => panic!("column invalid")
+        };
+        let row:usize = pos_split[1].parse::<usize>().unwrap();
+        
+        let board_square: TicTacToeSquare = match player {
+            "X" => TicTacToeSquare::X,
+            "O" => TicTacToeSquare::O,
+            _ => panic!("player invalid")
+        };
+
+        self.board[row - 1][column - 1] = board_square;
+    }
 }
