@@ -1,12 +1,13 @@
-use std::fmt;
+use std::{fmt,io};
 
 pub fn run() {
-    let a = TicTacToeGame::new();
+    let mut a = TicTacToeGame::new();
+    a.make_move("X", "A 2");
     println!("{}", a.get_state_display())
 
 }
 
-pub enum TicTacToeSquare {
+enum TicTacToeSquare {
     X, O, Empty
 }
 
@@ -21,24 +22,24 @@ impl fmt::Display for TicTacToeSquare {
     }
 }
 
-pub struct TicTacToeGame {
+struct TicTacToeGame {
     board: [[TicTacToeSquare; 3] ; 3], 
 }
 
 impl TicTacToeGame {
-    pub fn new() -> TicTacToeGame {
+    fn new() -> TicTacToeGame {
         TicTacToeGame {
             board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
-                    [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
-                    [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]]
+            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
+            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]]
         }
     }
-
-    pub fn get_state_display(&self) -> String {
+    
+    fn get_state_display(&self) -> String {
         let mut display = "     A     B     C  \n".to_string();
         let blank_line = "        |     |     \n";
         let blank_underlined_line = "   _____|_____|_____\n";
-
+        
         for x in 0..8 {
             match x%3 {
                 0 => display.push_str(blank_line),
@@ -54,8 +55,8 @@ impl TicTacToeGame {
         display.push_str(blank_line);
         display.to_string()
     }
-
-    pub fn make_move(&mut self, player: &str, pos: &str) {
+    
+    fn make_move(&mut self, player: &str, pos: &str) {
         let pos_split: Vec<&str> = pos.split(" ").collect();
         let column: usize = match pos_split[0] {
             "A" => 1,
@@ -70,7 +71,16 @@ impl TicTacToeGame {
             "O" => TicTacToeSquare::O,
             _ => panic!("player invalid")
         };
-
+        
         self.board[row - 1][column - 1] = board_square;
     }
+}
+
+fn get_user_input() -> String {
+    let mut guess = String::new();
+
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+    guess
 }
