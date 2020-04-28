@@ -10,6 +10,11 @@ pub struct HumanPlayer {
 }
 
 impl HumanPlayer {
+    pub fn new(prompt : &str) -> HumanPlayer {
+        HumanPlayer {
+            identity: get_user_input(prompt)
+        }
+    }
     pub fn give_update(&self, update: StatusUpdate) -> Option<String> {
         println!("Message for {}", &self.identity);
         println!("{}", update.display_state);
