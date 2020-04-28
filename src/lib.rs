@@ -18,14 +18,4 @@ pub fn run() {
 }
 
 mod normal_game;
-
-fn get_user_input(prompt: &str) -> String {
-    println!("{}", prompt);
-
-    let mut guess = String::new();
-
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Failed to read line");
-    guess
-}
+mod definitions;

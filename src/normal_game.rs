@@ -1,22 +1,39 @@
 use std::fmt;
+use crate::definitions::*;
+
 enum TicTacToeSquare {
     X, O, Empty
 }
 
+impl fmt::Display for TicTacToeSquare {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let disp = match &self {
+            TicTacToeSquare::X => "X",
+            TicTacToeSquare::O => "O",
+            TicTacToeSquare::Empty => " ",
+        };
+        write!(f, "{}", disp)
+    }
+}
+
 pub struct Game {
-    board: [[TicTacToeSquare; 3] ; 3], 
+    board: [[TicTacToeSquare; 3] ; 3],
+    player_one: HumanPlayer,
+    player_two: HumanPlayer,
 }
 
 impl Game {
-    pub fn new() -> Game {
+    pub fn from(player_one: HumanPlayer, player_two: HumanPlayer) -> Game {
         Game {
             board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
-            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]]
+            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]],
+            player_one,
+            player_two
         }
     }
-    
-    pub fn get_state_display(&self) -> String {
+
+    fn get_state_display(&self) -> String {
         let mut display = "     A     B     C  \n".to_string();
         let blank_line = "        |     |     \n";
         let blank_underlined_line = "   _____|_____|_____\n";
@@ -37,7 +54,7 @@ impl Game {
         display.to_string()
     }
     
-    pub fn make_move(&mut self, player: &str, pos: &str) {
+    fn make_move(&mut self, player: &str, pos: &str) {
         let pos_split: Vec<&str> = pos.split(" ").collect();
         let column: usize = match pos_split[0] {
             "A" => 1,
@@ -55,16 +72,5 @@ impl Game {
         };
         
         self.board[row - 1][column - 1] = board_square;
-    }
-}
-
-impl fmt::Display for TicTacToeSquare {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let disp = match &self {
-            TicTacToeSquare::X => "X",
-            TicTacToeSquare::O => "O",
-            TicTacToeSquare::Empty => " ",
-        };
-        write!(f, "{}", disp)
     }
 }

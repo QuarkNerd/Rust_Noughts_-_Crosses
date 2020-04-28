@@ -1,11 +1,11 @@
 use std::io;
 
-struct StatusUpdate {
+pub struct StatusUpdate {
     display_state: String,
     game_in_progress: bool,
 }
 
-struct HumanPlayer {
+pub struct HumanPlayer {
     identity: String,
 }
 
