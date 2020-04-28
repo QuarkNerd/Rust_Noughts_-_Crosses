@@ -39,8 +39,13 @@ impl Game {
         let mut current_symbol = "X";
 
         loop {
-            let next_move = &self.players.get(current_symbol).give_update();
-            &self.make_move(current_symbol, next_move);
+            let update = StatusUpdate {
+                display_state: (&self).get_state_display(),
+                game_in_progress: true,
+            };
+
+            let next_move = &self.players.get(current_symbol).unwrap().give_update(update);
+            &self.make_move(current_symbol, &next_move.unwrap());
 
             current_symbol = if current_symbol == "X" {
                 "O"

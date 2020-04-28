@@ -10,7 +10,7 @@ pub struct HumanPlayer {
 }
 
 impl HumanPlayer {
-    fn give_update(&self, update: StatusUpdate) -> Option<String> {
+    pub fn give_update(&self, update: StatusUpdate) -> Option<String> {
         println!("Message for {}", &self.identity);
         println!("{}", update.display_state);
         if update.game_in_progress {
