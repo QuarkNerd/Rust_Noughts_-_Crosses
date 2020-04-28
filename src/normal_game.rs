@@ -1,4 +1,5 @@
 use std::fmt;
+use std::collections::HashMap;
 use crate::definitions::*;
 
 enum TicTacToeSquare {
@@ -18,18 +19,34 @@ impl fmt::Display for TicTacToeSquare {
 
 pub struct Game {
     board: [[TicTacToeSquare; 3] ; 3],
-    player_one: HumanPlayer,
-    player_two: HumanPlayer,
+    players: HashMap<&'static str, HumanPlayer>
 }
 
 impl Game {
     pub fn from(player_one: HumanPlayer, player_two: HumanPlayer) -> Game {
-        Game {
+        let new_game = Game {
             board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]],
-            player_one,
-            player_two
+            players: HashMap::new()
+        };
+        new_game.players.insert("X",player_one);
+        new_game.players.insert("O",player_two);
+        new_game
+    }
+    
+    pub fn play_game(&self) {
+        let mut current_symbol = "X";
+
+        loop {
+            let next_move = &self.players.get(current_symbol).give_update();
+            &self.make_move(current_symbol, next_move);
+
+            current_symbol = if current_symbol == "X" {
+                "O"
+            } else {
+                "X"
+            }
         }
     }
 
