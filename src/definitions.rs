@@ -1,8 +1,8 @@
 use std::io;
 
 pub struct StatusUpdate {
-    display_state: String,
-    game_in_progress: bool,
+    pub display_state: String,
+    pub game_in_progress: bool,
 }
 
 pub struct HumanPlayer {

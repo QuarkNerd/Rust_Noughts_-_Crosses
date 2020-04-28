@@ -24,7 +24,7 @@ pub struct Game {
 
 impl Game {
     pub fn from(player_one: HumanPlayer, player_two: HumanPlayer) -> Game {
-        let new_game = Game {
+        let mut new_game = Game {
             board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]],
@@ -35,7 +35,7 @@ impl Game {
         new_game
     }
     
-    pub fn play_game(&self) {
+    pub fn play_game(&mut self) {
         let mut current_symbol = "X";
 
         loop {
@@ -44,8 +44,8 @@ impl Game {
                 game_in_progress: true,
             };
 
-            let next_move = &self.players.get(current_symbol).unwrap().give_update(update);
-            &self.make_move(current_symbol, &next_move.unwrap());
+            let next_move = &self.players.get(current_symbol).unwrap().give_update(update).unwrap();
+            &self.make_move(current_symbol, next_move);
 
             current_symbol = if current_symbol == "X" {
                 "O"
