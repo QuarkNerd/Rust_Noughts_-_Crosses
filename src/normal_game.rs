@@ -73,6 +73,7 @@ impl Game {
             }
         }
         display.push_str(blank_line);
+        display.push_str("To make a move, type the letter and number like \"B 3\"");
         display.to_string()
     }
     

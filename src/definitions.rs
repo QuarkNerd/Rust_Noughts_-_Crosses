@@ -16,8 +16,9 @@ impl HumanPlayer {
         }
     }
     pub fn give_update(&self, update: StatusUpdate) -> Option<String> {
-        println!("Message for {}", &self.identity);
+        println!("--------Message for {}-------\n", &self.identity);
         println!("{}", update.display_state);
+        println!("----------------------------");
         if update.game_in_progress {
             Some(get_user_input("What is your next move?"))
         } else {
@@ -34,5 +35,6 @@ fn get_user_input(prompt: &str) -> String {
         io::stdin()
             .read_line(&mut guess)
             .expect("Failed to read line");
+    guess = guess.trim().to_string();
     guess
 }
