@@ -2,6 +2,7 @@ use std::fmt;
 use std::collections::HashMap;
 use crate::definitions::*;
 
+#[derive(PartialEq)]
 enum TicTacToeSquare {
     X, O, Empty
 }
@@ -19,7 +20,8 @@ impl fmt::Display for TicTacToeSquare {
 
 pub struct Game {
     board: [[TicTacToeSquare; 3] ; 3],
-    players: HashMap<&'static str, HumanPlayer>
+    players: HashMap<&'static str, HumanPlayer>,
+    was_previous_move_invalid: bool
 }
 
 impl Game {
@@ -28,7 +30,8 @@ impl Game {
             board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
             [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]],
-            players: HashMap::new()
+            players: HashMap::new(),
+            was_previous_move_invalid: false,
         };
         new_game.players.insert("X",player_one);
         new_game.players.insert("O",player_two);
@@ -44,13 +47,16 @@ impl Game {
                 game_in_progress: true,
             };
 
-            let next_move = &self.players.get(current_symbol).unwrap().give_update(update).unwrap();
-            &self.make_move(current_symbol, next_move);
 
-            current_symbol = if current_symbol == "X" {
-                "O"
-            } else {
-                "X"
+            let next_move = &self.players.get(current_symbol).unwrap().give_update(update).unwrap();
+            self.was_previous_move_invalid = !(self).make_move(current_symbol, next_move);
+            
+            if !self.was_previous_move_invalid {
+                current_symbol = if current_symbol == "X" {
+                    "O"
+                } else {
+                    "X"
+                }
             }
         }
     }
@@ -74,26 +80,42 @@ impl Game {
         }
         display.push_str(blank_line);
         display.push_str("To make a move, type the letter and number like \"B 3\"");
+        if self.was_previous_move_invalid {
+            display.push_str("\nYour previous move was valid!");
+        }
         display.to_string()
     }
-    
-    fn make_move(&mut self, player: &str, pos: &str) {
+
+    // returns whether or not move was valid
+    fn make_move(&mut self, player: &str, pos: &str) -> bool {
         let pos_split: Vec<&str> = pos.split(" ").collect();
+
         let column: usize = match pos_split[0] {
-            "A" => 1,
-            "B" => 2,
-            "C" => 3,
-            _ => panic!("column invalid")
+            "A" | "a" => 1,
+            "B" | "b" => 2,
+            "C" | "c" => 3,
+            _ => return false
+        };
+        // not using parse because then I need extra logic to stop panics and to make sure
+        // row is in bounds
+        let row: usize = match pos_split[1] {
+            "1" => 1,
+            "2" => 2,
+            "3" => 3,
+            _ => return false
         };
 
-        let row:usize = pos_split[1].trim().parse::<usize>().unwrap();
-        
         let board_square: TicTacToeSquare = match player {
             "X" => TicTacToeSquare::X,
             "O" => TicTacToeSquare::O,
             _ => panic!("player invalid")
         };
+
+        if self.board[row - 1][column - 1] != TicTacToeSquare::Empty {
+            return false
+        }
         
         self.board[row - 1][column - 1] = board_square;
+        true
     }
 }
