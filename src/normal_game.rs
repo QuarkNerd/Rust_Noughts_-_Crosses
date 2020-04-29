@@ -2,7 +2,7 @@ use std::fmt;
 use std::collections::HashMap;
 use crate::definitions::*;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 enum TicTacToeSquare {
     X, O, Empty
 }
@@ -20,7 +20,7 @@ impl fmt::Display for TicTacToeSquare {
 
 pub struct Game {
     board: [[TicTacToeSquare; 3] ; 3],
-    players: HashMap<&'static str, HumanPlayer>,
+    players: HashMap<TicTacToeSquare, HumanPlayer>,
     was_previous_move_invalid: bool
 }
 
@@ -33,13 +33,13 @@ impl Game {
             players: HashMap::new(),
             was_previous_move_invalid: false,
         };
-        new_game.players.insert("X",player_one);
-        new_game.players.insert("O",player_two);
+        new_game.players.insert(TicTacToeSquare::X,player_one);
+        new_game.players.insert(TicTacToeSquare::O,player_two);
         new_game
     }
     
     pub fn play_game(&mut self) {
-        let mut current_symbol = "X";
+        let mut current_symbol = TicTacToeSquare::X;
 
         loop {
             let update = StatusUpdate {
@@ -48,14 +48,14 @@ impl Game {
             };
 
 
-            let next_move = &self.players.get(current_symbol).unwrap().give_update(update).unwrap();
+            let next_move = &self.players.get(&current_symbol).unwrap().give_update(update).unwrap();
             self.was_previous_move_invalid = !(self).make_move(current_symbol, next_move);
             
             if !self.was_previous_move_invalid {
-                current_symbol = if current_symbol == "X" {
-                    "O"
+                current_symbol = if current_symbol == TicTacToeSquare::X {
+                    TicTacToeSquare::O
                 } else {
-                    "X"
+                    TicTacToeSquare::X
                 }
             }
         }
@@ -87,7 +87,7 @@ impl Game {
     }
 
     // returns whether or not move was valid
-    fn make_move(&mut self, player: &str, pos: &str) -> bool {
+    fn make_move(&mut self, player: TicTacToeSquare, pos: &str) -> bool {
         let pos_split: Vec<&str> = pos.split(" ").collect();
 
         let column: usize = match pos_split[0] {
@@ -105,17 +105,11 @@ impl Game {
             _ => return false
         };
 
-        let board_square: TicTacToeSquare = match player {
-            "X" => TicTacToeSquare::X,
-            "O" => TicTacToeSquare::O,
-            _ => panic!("player invalid")
-        };
-
         if self.board[row - 1][column - 1] != TicTacToeSquare::Empty {
             return false
         }
         
-        self.board[row - 1][column - 1] = board_square;
+        self.board[row - 1][column - 1] = player;
         true
     }
 }
