@@ -12,12 +12,23 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
             [PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty]]);
 
     let mut current_symbol = PlayerSymbol::X;
-    let mut game_in_progress = true;
-    while game_in_progress {
+    let mut winner: Option<PlayerSymbol> = None;
+
+    for turn in 1..10 {
         let current_player = players_by_symbol.get(&current_symbol).unwrap();
         get_player_to_move(&mut board, current_player, current_symbol);
         current_symbol = current_symbol.other();
+
+        if turn > 4  {
+            winner = board.get_winner();
+            if winner.is_some() { break; }
+        }
     }
+    match winner {
+        Some(player) => println!("{}", player),
+        None => println!("peep")
+    }
+    // winner logic
 }
 
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
@@ -39,10 +50,9 @@ enum PlayerSymbol {
     X, O, Empty
 }
 
-enum Result {
-    Win(PlayerSymbol), Draw
-}
-
+// enum Result {
+//     Win(PlayerSymbol), Draw
+// }
 
 impl fmt::Display for PlayerSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -57,7 +67,7 @@ impl fmt::Display for PlayerSymbol {
 
 impl PlayerSymbol {
     fn other(&self) -> PlayerSymbol {
-        if *self == PlayerSymbol::X { //lookup uses of dereferncing
+        if *self == PlayerSymbol::X { //lookup uses of dereferencing
             PlayerSymbol::O
         } else {
             PlayerSymbol::X
@@ -116,4 +126,25 @@ impl Board {
                 self.0[row - 1][column - 1] = player;
                 true
             }
+    
+    fn get_winner(&self) -> Option<PlayerSymbol> {
+        let board = self.0;
+        
+        // Rows and columns
+        for coor in 0..3 {
+            if (board[coor][0] != PlayerSymbol::Empty && board[coor][0] == board[coor][1] && board[coor][1] == board[coor][2]) || // row 
+                (board[0][coor] != PlayerSymbol::Empty && board[0][coor] == board[1][coor] && board[1][coor] == board[2][coor]) { // column
+                    return Some(board[coor][coor])
+            }
+        }
+
+        // diagonals
+        if (board[1][1] != PlayerSymbol::Empty) && ( 
+            (board[0][0] == board[1][1] && board[1][1] == board[2][2]) || 
+            (board[2][0] == board[1][1] && board[1][1] == board[0][2])
+        ) { 
+            return Some(board[1][1])
+        }
+        None
+    }
 }

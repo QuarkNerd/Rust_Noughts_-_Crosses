@@ -14,11 +14,7 @@ impl HumanPlayer {
             identity: get_user_input(prompt)
         }
     }
-
-    pub fn change_name(&mut self, name: String) {
-        self.identity = name;
-    }
-
+    
     pub fn give_update(&self, update: &StatusUpdate) -> Option<String> {
         println!("--------Message for {}-------\n", &self.identity);
         println!("{}", update.display_state);
