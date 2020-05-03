@@ -2,65 +2,73 @@ use std::fmt;
 use std::collections::HashMap;
 use crate::definitions::*;
 
+pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
+    let mut players_by_symbol = HashMap::new();
+    players_by_symbol.insert(PlayerSymbol::X,player_one);
+    players_by_symbol.insert(PlayerSymbol::O,player_two); // did it this way so didint have to implement clone on human_player leads to having to make it mutable, is this okay?
+    
+    let mut board = Board([[PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty],
+            [PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty],
+            [PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty]]);
+
+    let mut current_symbol = PlayerSymbol::X;
+    let mut game_in_progress = true;
+    while game_in_progress {
+        let current_player = players_by_symbol.get(&current_symbol).unwrap();
+        get_player_to_move(&mut board, current_player, current_symbol);
+        current_symbol = current_symbol.other();
+    }
+}
+
+fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
+    let update = StatusUpdate {
+        display_state: board.get_state_display(),
+        game_in_progress: true,
+    };
+
+    let mut have_valid_move = false;
+
+    while !have_valid_move {
+        let next_move = player.give_update(&update).unwrap();
+        have_valid_move = board.try_apply_move(symbol, &next_move); // works because copy/clone
+    }
+}
+
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
-enum TicTacToeSquare {
+enum PlayerSymbol {
     X, O, Empty
 }
 
-impl fmt::Display for TicTacToeSquare {
+enum Result {
+    Win(PlayerSymbol), Draw
+}
+
+
+impl fmt::Display for PlayerSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let disp = match &self {
-            TicTacToeSquare::X => "X",
-            TicTacToeSquare::O => "O",
-            TicTacToeSquare::Empty => " ",
+            PlayerSymbol::X => "X",
+            PlayerSymbol::O => "O",
+            PlayerSymbol::Empty => " ",
         };
         write!(f, "{}", disp)
     }
 }
 
-pub struct Game {
-    board: [[TicTacToeSquare; 3] ; 3],
-    players: HashMap<TicTacToeSquare, HumanPlayer>,
-    was_previous_move_invalid: bool
-}
-
-impl Game {
-    pub fn from(player_one: HumanPlayer, player_two: HumanPlayer) -> Game {
-        let mut new_game = Game {
-            board: [[TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
-            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty],
-            [TicTacToeSquare::Empty, TicTacToeSquare::Empty, TicTacToeSquare::Empty]],
-            players: HashMap::new(),
-            was_previous_move_invalid: false,
-        };
-        new_game.players.insert(TicTacToeSquare::X,player_one);
-        new_game.players.insert(TicTacToeSquare::O,player_two);
-        new_game
-    }
-    
-    pub fn play_game(&mut self) {
-        let mut current_symbol = TicTacToeSquare::X;
-
-        loop {
-            let update = StatusUpdate {
-                display_state: (&self).get_state_display(),
-                game_in_progress: true,
-            };
-
-
-            let next_move = &self.players.get(&current_symbol).unwrap().give_update(update).unwrap();
-            self.was_previous_move_invalid = !(self).make_move(current_symbol, next_move);
-            
-            if !self.was_previous_move_invalid {
-                current_symbol = if current_symbol == TicTacToeSquare::X {
-                    TicTacToeSquare::O
-                } else {
-                    TicTacToeSquare::X
-                }
-            }
+impl PlayerSymbol {
+    fn other(&self) -> PlayerSymbol {
+        if *self == PlayerSymbol::X { //lookup uses of dereferncing
+            PlayerSymbol::O
+        } else {
+            PlayerSymbol::X
         }
     }
+}
 
+
+pub struct Board([[PlayerSymbol; 3] ; 3]);
+
+impl Board {
     fn get_state_display(&self) -> String {
         let mut display = "     A     B     C  \n".to_string();
         let blank_line = "        |     |     \n";
@@ -71,7 +79,7 @@ impl Game {
                 0 => display.push_str(blank_line),
                 1 => {
                     let row_num = x/3;
-                    let row = &self.board[row_num];
+                    let row = self.0[row_num];
                     display.push_str(&format!("{}    {}  |  {}  |  {}  \n",row_num + 1 ,row[0], row[1], row[2]))
                 },
                 2 => display.push_str(blank_underlined_line),
@@ -80,36 +88,32 @@ impl Game {
         }
         display.push_str(blank_line);
         display.push_str("To make a move, type the letter and number like \"B 3\"");
-        if self.was_previous_move_invalid {
-            display.push_str("\nYour previous move was valid!");
-        }
         display.to_string()
     }
 
-    // returns whether or not move was valid
-    fn make_move(&mut self, player: TicTacToeSquare, pos: &str) -> bool {
-        let pos_split: Vec<&str> = pos.split(" ").collect();
-
-        let column: usize = match pos_split[0] {
-            "A" | "a" => 1,
-            "B" | "b" => 2,
-            "C" | "c" => 3,
-            _ => return false
-        };
-        // not using parse because then I need extra logic to stop panics and to make sure
-        // row is in bounds
-        let row: usize = match pos_split[1] {
-            "1" => 1,
-            "2" => 2,
-            "3" => 3,
-            _ => return false
-        };
-
-        if self.board[row - 1][column - 1] != TicTacToeSquare::Empty {
-            return false
-        }
+    fn try_apply_move(&mut self, player: PlayerSymbol, pos: &str) -> bool {
+                let pos_split: Vec<&str> = pos.split(" ").collect();
         
-        self.board[row - 1][column - 1] = player;
-        true
-    }
+                let column: usize = match pos_split[0] {
+                    "A" | "a" => 1,
+                    "B" | "b" => 2,
+                    "C" | "c" => 3,
+                    _ => return false
+                };
+                // not using parse because then I wouldneed extra logic to stop panics and to make sure
+                // row is in bounds
+                let row: usize = match pos_split[1] {
+                    "1" => 1,
+                    "2" => 2,
+                    "3" => 3,
+                    _ => return false
+                };
+        
+                if self.0[row - 1][column - 1] != PlayerSymbol::Empty {
+                    return false
+                }
+                
+                self.0[row - 1][column - 1] = player;
+                true
+            }
 }

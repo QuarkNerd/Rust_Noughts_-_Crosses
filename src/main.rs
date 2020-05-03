@@ -1,4 +1,4 @@
-use tictactoe::*;
+use tictactoe::run;
 
 fn main() {
     run();
