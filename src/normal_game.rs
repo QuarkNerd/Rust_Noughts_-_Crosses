@@ -7,9 +7,9 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
     players_by_symbol.insert(PlayerSymbol::X,player_one);
     players_by_symbol.insert(PlayerSymbol::O,player_two); // did it this way so didint have to implement clone on human_player leads to having to make it mutable, is this okay?
     
-    let mut board = Board([[PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty],
-            [PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty],
-            [PlayerSymbol::Empty, PlayerSymbol::Empty, PlayerSymbol::Empty]]);
+    let mut board = Board([[None, None, None],
+            [None, None, None],
+            [None, None, None]]);
 
     let mut current_symbol = PlayerSymbol::X;
     let mut winner: Option<PlayerSymbol> = None;
@@ -28,12 +28,11 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
         Some(player) => println!("{}", player),
         None => println!("peep")
     }
-    // winner logic
 }
 
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
     let update = StatusUpdate {
-        display_state: board.get_state_display(),
+        display_state: board.to_string(),
         game_in_progress: true,
     };
 
@@ -47,23 +46,22 @@ fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSym
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 enum PlayerSymbol {
-    X, O, Empty
+    X, O
 }
-
-// enum Result {
-//     Win(PlayerSymbol), Draw
-// }
 
 impl fmt::Display for PlayerSymbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let disp = match &self {
             PlayerSymbol::X => "X",
-            PlayerSymbol::O => "O",
-            PlayerSymbol::Empty => " ",
+            PlayerSymbol::O => "O"
         };
         write!(f, "{}", disp)
     }
 }
+
+// enum Result {
+//     Win(PlayerSymbol), Draw
+// }
 
 impl PlayerSymbol {
     fn other(&self) -> PlayerSymbol {
@@ -75,32 +73,9 @@ impl PlayerSymbol {
     }
 }
 
-
-pub struct Board([[PlayerSymbol; 3] ; 3]);
+pub struct Board([[Option<PlayerSymbol>; 3] ; 3]);
 
 impl Board {
-    fn get_state_display(&self) -> String {
-        let mut display = "     A     B     C  \n".to_string();
-        let blank_line = "        |     |     \n";
-        let blank_underlined_line = "   _____|_____|_____\n";
-        
-        for x in 0..8 {
-            match x%3 {
-                0 => display.push_str(blank_line),
-                1 => {
-                    let row_num = x/3;
-                    let row = self.0[row_num];
-                    display.push_str(&format!("{}    {}  |  {}  |  {}  \n",row_num + 1 ,row[0], row[1], row[2]))
-                },
-                2 => display.push_str(blank_underlined_line),
-                _ => unreachable!()
-            }
-        }
-        display.push_str(blank_line);
-        display.push_str("To make a move, type the letter and number like \"B 3\"");
-        display.to_string()
-    }
-
     fn try_apply_move(&mut self, player: PlayerSymbol, pos: &str) -> bool {
                 let pos_split: Vec<&str> = pos.split(" ").collect();
         
@@ -119,11 +94,11 @@ impl Board {
                     _ => return false
                 };
         
-                if self.0[row - 1][column - 1] != PlayerSymbol::Empty {
+                if self.0[row - 1][column - 1] != None {
                     return false
                 }
                 
-                self.0[row - 1][column - 1] = player;
+                self.0[row - 1][column - 1] = Some(player);
                 true
             }
     
@@ -132,19 +107,48 @@ impl Board {
         
         // Rows and columns
         for coor in 0..3 {
-            if (board[coor][0] != PlayerSymbol::Empty && board[coor][0] == board[coor][1] && board[coor][1] == board[coor][2]) || // row 
-                (board[0][coor] != PlayerSymbol::Empty && board[0][coor] == board[1][coor] && board[1][coor] == board[2][coor]) { // column
-                    return Some(board[coor][coor])
+            if (board[coor][0] != None && board[coor][0] == board[coor][1] && board[coor][1] == board[coor][2]) || // row 
+                (board[0][coor] != None && board[0][coor] == board[1][coor] && board[1][coor] == board[2][coor]) { // column
+                    return board[coor][coor]
             }
         }
 
         // diagonals
-        if (board[1][1] != PlayerSymbol::Empty) && ( 
+        if (board[1][1] != None) && ( 
             (board[0][0] == board[1][1] && board[1][1] == board[2][2]) || 
             (board[2][0] == board[1][1] && board[1][1] == board[0][2])
         ) { 
-            return Some(board[1][1])
+            return board[1][1]
         }
         None
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut display = "     A     B     C  \n".to_string();
+        let blank_line = "        |     |     \n";
+        let blank_underlined_line = "   _____|_____|_____\n";
+        
+        for x in 0..8 {
+            match x%3 {
+                0 => display.push_str(blank_line),
+                1 => {
+                    let row_num = x/3;
+                    let row: Vec<String> = (0..3).map(|col| {
+                        match self.0[row_num][col] {
+                            Some(x) => x.to_string(),
+                            None => " ".to_string(),
+                        } 
+                    }).collect();
+                    display.push_str(&format!("{}    {}  |  {}  |  {}  \n",row_num + 1 ,row[0], row[1], row[2]))
+                },
+                2 => display.push_str(blank_underlined_line),
+                _ => unreachable!()
+            }
+        }
+        display.push_str(blank_line);
+        display.push_str("To make a move, type the letter and number like \"B 3\"");
+        write!(f, "{}", display)
     }
 }
