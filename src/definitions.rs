@@ -2,7 +2,6 @@ use std::io;
 
 pub struct StatusUpdate {
     pub display_state: String,
-    pub game_in_progress: bool,
 }
 pub struct HumanPlayer {
     pub identity: String,
@@ -15,15 +14,12 @@ impl HumanPlayer {
         }
     }
     
-    pub fn give_update(&self, update: &StatusUpdate) -> Option<String> {
+    pub fn make_move(&self, update: &StatusUpdate) -> String {
         println!("--------Message for {}-------\n", &self.identity);
         println!("{}", update.display_state);
         println!("----------------------------");
-        if update.game_in_progress {
-            Some(get_user_input("What is your next move?"))
-        } else {
-            None
-        }
+        get_user_input("What is your next move?")
+
     }
 }
 

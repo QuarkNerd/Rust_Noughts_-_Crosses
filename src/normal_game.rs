@@ -14,7 +14,7 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
     let mut current_symbol = PlayerSymbol::X;
     let mut winner: Option<PlayerSymbol> = None;
 
-    for turn in 1..10 {
+    for turn in 1..=9 {
         let current_player = players_by_symbol.get(&current_symbol).unwrap();
         get_player_to_move(&mut board, current_player, current_symbol);
         current_symbol = current_symbol.other();
@@ -33,13 +33,12 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
     let update = StatusUpdate {
         display_state: board.to_string(),
-        game_in_progress: true,
     };
 
     let mut have_valid_move = false;
 
     while !have_valid_move {
-        let next_move = player.give_update(&update).unwrap();
+        let next_move = player.make_move(&update);
         have_valid_move = board.try_apply_move(symbol, &next_move); // works because copy/clone
     }
 }
