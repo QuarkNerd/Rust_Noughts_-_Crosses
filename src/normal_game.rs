@@ -24,10 +24,7 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
             if winner.is_some() { break; }
         }
     }
-    match winner {
-        Some(player) => println!("{}", player),
-        None => println!("peep")
-    }
+    inform_player_result(players_by_symbol, winner)
 }
 
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
@@ -40,6 +37,19 @@ fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSym
     while !have_valid_move {
         let next_move = player.make_move(&update);
         have_valid_move = board.try_apply_move(symbol, &next_move); // works because copy/clone
+    }
+}
+
+fn inform_player_result(players_by_symbol: HashMap<PlayerSymbol, &HumanPlayer>, winner: Option<PlayerSymbol>) {
+    match winner {
+        Some(symbol) => {
+            players_by_symbol.get(&symbol).unwrap().take_result(Result::Win);
+            players_by_symbol.get(&symbol.other()).unwrap().take_result(Result::Lose);
+        }
+        None => {
+            players_by_symbol.get(&PlayerSymbol::X).unwrap().take_result(Result::Draw);
+            players_by_symbol.get(&PlayerSymbol::O).unwrap().take_result(Result::Draw);
+        }
     }
 }
 
@@ -57,10 +67,6 @@ impl fmt::Display for PlayerSymbol {
         write!(f, "{}", disp)
     }
 }
-
-// enum Result {
-//     Win(PlayerSymbol), Draw
-// }
 
 impl PlayerSymbol {
     fn other(&self) -> PlayerSymbol {
