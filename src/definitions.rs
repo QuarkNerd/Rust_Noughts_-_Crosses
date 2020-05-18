@@ -8,6 +8,12 @@ pub struct StatusUpdate {
     pub display_state: String,
 }
 
+pub trait Player {
+    fn make_move(&self, update: &StatusUpdate) -> String;
+    fn take_result(&self, result: Result);
+    fn new_game(&self);
+}
+
 pub struct HumanPlayer {
     pub identity: String,
 }
