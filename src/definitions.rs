@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt::Display;
 
 pub enum Result {
     Win, Draw, Lose
@@ -18,38 +19,38 @@ pub struct HumanPlayer {
     pub identity: String,
 }
 
+impl Player for HumanPlayer {
+    // don't need to make public because it's implied by use of a trait
+    fn new_game(&self) {
+        self.print_msg("Get ready for a game!");
+    }
+
+    fn make_move(&self, update: &StatusUpdate) -> String {
+        self.print_msg(&update.display_state);
+        get_user_input("What is your next move?")
+    }
+
+    fn take_result(&self, result: Result) {
+        let msg = match result {
+            Result::Win => "You win, well done?.. I guess",
+            Result::Draw => "Draw occurred, acceptable",
+            Result::Lose => "You Lost, but.... how?",
+        };
+        self.print_msg(msg);
+    }
+}
+
 impl HumanPlayer {
     pub fn new(prompt : &str) -> HumanPlayer {
         HumanPlayer {
             identity: get_user_input(prompt)
         }
     }
-    
-    pub fn make_move(&self, update: &StatusUpdate) -> String {
-        self.print_msg_start();
-        println!("{}", update.display_state);
-        self.print_msg_end();
-        get_user_input("What is your next move?")
+
+    fn print_msg(&self, msg: impl Display) {
+        println!("{:-^30}\n{}\n{:-<30}", &self.identity, msg, "");
     }
 
-    pub fn take_result(&self, result: Result) {
-        self.print_msg_start();
-        let msg = match result {
-            Result::Win => "You win, well done?.. I guess",
-            Result::Draw => "Draw occurred, acceptable",
-            Result::Lose => "You Lost, but.... how?",
-        };
-        println!("{}", msg);
-        self.print_msg_end();
-    }
-
-    fn print_msg_start(&self) {
-        println!("--------Message for {}-------\n", &self.identity);
-    }
-
-    fn print_msg_end(&self) {
-        println!("----------------------------");
-    }
 }
 
 fn get_user_input(prompt: &str) -> String {
