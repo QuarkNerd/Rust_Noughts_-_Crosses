@@ -1,4 +1,4 @@
-use definitions::*;
+use players::*;
 
 pub fn run() {
     let one = HumanPlayer::new("Player one name:");
@@ -7,4 +7,6 @@ pub fn run() {
 }
 
 mod normal_game;
-mod definitions;
+mod players;
+mod utilities;
+mod shared_definitions;

@@ -1,6 +1,7 @@
 use std::fmt;
 use std::collections::HashMap;
-use crate::definitions::*;
+use crate::shared_definitions::*;
+use crate::players::*;
 
 pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
     let mut players_by_symbol = HashMap::new();

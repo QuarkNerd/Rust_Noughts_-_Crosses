@@ -1,18 +1,11 @@
-use std::io;
 use std::fmt::Display;
-
-pub enum Result {
-    Win, Draw, Lose
-}
-
-pub struct StatusUpdate {
-    pub display_state: String,
-}
+use crate::utilities::*;
+use crate::shared_definitions::*;
 
 pub trait Player {
+    fn new_game(&self);
     fn make_move(&self, update: &StatusUpdate) -> String;
     fn take_result(&self, result: Result);
-    fn new_game(&self);
 }
 
 pub struct HumanPlayer {
@@ -53,14 +46,3 @@ impl HumanPlayer {
 
 }
 
-fn get_user_input(prompt: &str) -> String {
-    println!("{}", prompt);
-
-    let mut guess = String::new();
-
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Failed to read line");
-    guess = guess.trim().to_string();
-    guess
-}
