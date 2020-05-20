@@ -1,23 +1,19 @@
 use std::fmt::Display;
+use std::collections::HashMap;
 use crate::utilities::*;
 use crate::shared_definitions::*;
 
 pub trait Player {
-    fn new_game(&self);
     fn make_move(&self, update: &StatusUpdate) -> String;
     fn take_result(&self, result: Result);
 }
 
 pub struct HumanPlayer {
-    pub identity: String,
+    identity: String,
 }
 
 impl Player for HumanPlayer {
     // don't need to make public because it's implied by use of a trait
-    fn new_game(&self) {
-        self.print_msg("Get ready for a game!");
-    }
-
     fn make_move(&self, update: &StatusUpdate) -> String {
         self.print_msg(&update.display_state);
         get_user_input("What is your next move?")
@@ -46,3 +42,21 @@ impl HumanPlayer {
 
 }
 
+struct GameStep {
+    game_state: String,
+    move_made: String,
+}
+
+pub struct ComputerLearner {
+    strategy_by_state: HashMap<&'static str, HashMap<&'static str, u128>>,
+    current_game_history: Vec<GameStep>, // decided against HashMap because some games may allow repeating step
+}
+
+impl ComputerLearner {
+    pub fn new() -> ComputerLearner {
+        ComputerLearner {
+            strategy_by_state: HashMap::new(),
+            current_game_history: Vec::new(),
+        }
+    }
+}

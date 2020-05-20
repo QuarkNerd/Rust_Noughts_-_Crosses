@@ -33,11 +33,11 @@ fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSym
         display_state: board.to_string(),
     };
 
-    let mut have_valid_move = false;
+    let mut was_valid_move_made = false;
 
-    while !have_valid_move {
+    while !was_valid_move_made {
         let next_move = player.make_move(&update);
-        have_valid_move = board.try_apply_move(symbol, &next_move); // works because copy/clone
+        was_valid_move_made = board.try_apply_move(symbol, &next_move); // works because copy/clone
     }
 }
 
