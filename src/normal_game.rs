@@ -83,28 +83,22 @@ pub struct Board([[Option<PlayerSymbol>; 3] ; 3]);
 
 impl Board {
     fn try_apply_move(&mut self, player: PlayerSymbol, pos: &str) -> bool {
-                let pos_split: Vec<&str> = pos.split(" ").collect();
-        
-                let column: usize = match pos_split[0] {
-                    "A" | "a" => 1,
-                    "B" | "b" => 2,
-                    "C" | "c" => 3,
+                let pos= pos.parse::<usize>();
+                let position = match pos {
+                    Ok(input) => input,
                     _ => return false
                 };
-                // not using parse because then I wouldneed extra logic to stop panics and to make sure
-                // row is in bounds
-                let row: usize = match pos_split[1] {
-                    "1" => 1,
-                    "2" => 2,
-                    "3" => 3,
-                    _ => return false
-                };
+
+                if position > 8 { return false; }
+
+                let column = position/3;
+                let row = position%3;
         
-                if self.0[row - 1][column - 1] != None {
-                    return false
+                if self.0[row][column] != None {
+                    return false;
                 }
                 
-                self.0[row - 1][column - 1] = Some(player);
+                self.0[row][column] = Some(player);
                 true
             }
     
@@ -132,9 +126,9 @@ impl Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut display = "     A     B     C  \n".to_string();
-        let blank_line = "        |     |     \n";
-        let blank_underlined_line = "   _____|_____|_____\n";
+        let mut display = "".to_string();
+        let blank_line = "     |     |     \n";
+        let blank_underlined_line = "_____|_____|_____\n";
         
         for x in 0..8 {
             match x%3 {
@@ -144,17 +138,17 @@ impl fmt::Display for Board {
                     let row: Vec<String> = (0..3).map(|col| {
                         match self.0[row_num][col] {
                             Some(x) => x.to_string(),
-                            None => " ".to_string(),
+                            None => (row_num + col*3).to_string(),
                         } 
                     }).collect();
-                    display.push_str(&format!("{}    {}  |  {}  |  {}  \n",row_num + 1 ,row[0], row[1], row[2]))
+                    display.push_str(&format!("  {}  |  {}  |  {}  \n", row[0], row[1], row[2]))
                 },
                 2 => display.push_str(blank_underlined_line),
                 _ => unreachable!()
             }
         }
         display.push_str(blank_line);
-        display.push_str("To make a move, type the letter and number like \"B 3\"");
+        display.push_str("To make a move, type the number");
         write!(f, "{}", display)
     }
 }
