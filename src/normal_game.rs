@@ -126,29 +126,16 @@ impl Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut display = "".to_string();
-        let blank_line = "     |     |     \n";
-        let blank_underlined_line = "_____|_____|_____\n";
-        
-        for x in 0..8 {
-            match x%3 {
-                0 => display.push_str(blank_line),
-                1 => {
-                    let row_num = x/3;
-                    let row: Vec<String> = (0..3).map(|col| {
-                        match self.0[row_num][col] {
-                            Some(x) => x.to_string(),
-                            None => (row_num + col*3).to_string(),
-                        } 
-                    }).collect();
-                    display.push_str(&format!("  {}  |  {}  |  {}  \n", row[0], row[1], row[2]))
-                },
-                2 => display.push_str(blank_underlined_line),
-                _ => unreachable!()
-            }
-        }
-        display.push_str(blank_line);
-        display.push_str("To make a move, type the number");
-        write!(f, "{}", display)
+        let display_rows = (0..=2).map(|row_num| {
+            let row = (0..=2).map(|col_num| {
+                return match self.0[row_num][col_num] {
+                    Some(x) => x.to_string(),
+                    None => (row_num + col_num*3).to_string(),
+                };
+            }).collect::<Vec<_>>();
+            format!("|     |     |     |\n|  {}  |  {}  |  {}  |\n|_____|_____|_____|\n", row[0], row[1], row[2])
+        }).collect::<Vec<_>>();
+
+        write!(f, " _________________ \n{}{}{}To make a move, type the number", display_rows[0],display_rows[1],display_rows[2])
     }
 }
