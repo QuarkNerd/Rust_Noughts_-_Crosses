@@ -15,7 +15,7 @@ pub struct HumanPlayer {
 impl Player for HumanPlayer {
     // don't need to make public because it's implied by use of a trait
     fn make_move(&self, update: &GameStatus) -> String {
-        self.print_msg(&update.personalised_display_state);
+        self.print_msg(&update.display_state);
         get_user_input("What is your next move?")
     }
 

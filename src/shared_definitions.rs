@@ -3,5 +3,7 @@ pub enum Result {
 }
 
 pub struct GameStatus {
-    pub personalised_display_state: String,
+    pub display_state: String,
+    pub minified_state: String,
+    pub possible_moves: Vec<String>
 }

@@ -30,7 +30,9 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
 
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
     let update = GameStatus {
-        personalised_display_state: board.to_string(),
+        display_state: board.to_string(),
+        minified_state: board.get_minified_state(symbol),
+        possible_moves: board.get_possible_moves(),
     };
 
     let mut was_valid_move_made = false;
