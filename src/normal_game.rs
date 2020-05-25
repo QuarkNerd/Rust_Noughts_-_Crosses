@@ -29,8 +29,8 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
 }
 
 fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
-    let update = StatusUpdate {
-        display_state: board.to_string(),
+    let update = GameStatus {
+        personalised_display_state: board.to_string(),
     };
 
     let mut was_valid_move_made = false;
@@ -121,6 +121,35 @@ impl Board {
             return board[1][1]
         }
         None
+    }
+
+    fn get_minified_state(&self, player_symbol: PlayerSymbol) -> String {
+        (0..=2).map(|row_num| {
+            (0..=2).map(|col_num| {
+                return match self.0[row_num][col_num] {
+                    Some(x) => {
+                        if x == player_symbol {
+                           "Y" 
+                        } else {
+                           "R"
+                        }
+                    }
+                    None => " ",
+                };
+            }).collect::<Vec<_>>().join("")
+        }).collect::<Vec<_>>().join("")
+    }
+
+    fn get_possible_moves(&self) -> Vec<String> {
+        let mut possible_moves = Vec::new();
+        for col_num in (0..=2) {
+            for row_num in (0..=2) {
+                if self.0[row_num][col_num].is_none() {
+                    possible_moves.push((row_num + col_num*3).to_string())
+                }
+            }
+        };
+        possible_moves
     }
 }
 

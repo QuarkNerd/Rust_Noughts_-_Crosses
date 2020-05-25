@@ -2,6 +2,6 @@ pub enum Result {
     Win, Draw, Lose
 }
 
-pub struct StatusUpdate {
-    pub display_state: String,
+pub struct GameStatus {
+    pub personalised_display_state: String,
 }
