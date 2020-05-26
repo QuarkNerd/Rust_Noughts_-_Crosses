@@ -144,8 +144,8 @@ impl Board {
 
     fn get_possible_moves(&self) -> Vec<String> {
         let mut possible_moves = Vec::new();
-        for col_num in (0..=2) {
-            for row_num in (0..=2) {
+        for col_num in 0..=2 {
+            for row_num in 0..=2 {
                 if self.0[row_num][col_num].is_none() {
                     possible_moves.push((row_num + col_num*3).to_string())
                 }

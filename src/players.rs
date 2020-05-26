@@ -1,6 +1,9 @@
 use std::fmt::Display;
 use std::collections::HashMap;
 use crate::utilities::*;
+use rand::distributions::WeightedIndex;
+
+use rand::prelude::*;
 use crate::shared_definitions::*;
 
 pub trait Player {
@@ -47,8 +50,28 @@ struct GameStep {
     move_made: String,
 }
 
+struct Strategy {
+    moves: Vec<String>,
+    weights: Vec<u64>
+}
+
+impl Strategy {
+    pub fn from(moves: Vec<String>, weights: Vec<u64>) -> Strategy {
+        Strategy {
+            moves,
+            weights,
+        }
+    }
+
+    pub fn weighted_pick(&self) -> String {
+        let dist = WeightedIndex::new(&(self.weights)).unwrap();
+        let mut rng = thread_rng();
+        self.moves[dist.sample(&mut rng)].clone()
+    }
+}
+
 pub struct ComputerLearner {
-    strategy_by_state: HashMap<&'static str, HashMap<&'static str, u128>>,
+    strategy_by_state: HashMap<&'static str, Strategy>,
     current_game_history: Vec<GameStep>, // decided against HashMap because some games may allow repeating step
 }
 
