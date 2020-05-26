@@ -5,6 +5,7 @@ use rand::distributions::WeightedIndex;
 
 use rand::prelude::*;
 use crate::shared_definitions::*;
+use std::u64;
 
 pub trait Player {
     fn make_move(&self, update: &GameStatus) -> String;
@@ -67,6 +68,27 @@ impl Strategy {
         let dist = WeightedIndex::new(&(self.weights)).unwrap();
         let mut rng = thread_rng();
         self.moves[dist.sample(&mut rng)].clone()
+    }
+
+    pub fn update_weight(&mut self, move_string: String, change: i64 ) {
+        let move_index = self.moves.iter().position(|s| s == &move_string).unwrap_or_else(|| {
+            panic!("update_weight called with unrecognised move");
+            }   
+        );
+
+        let result = if change < 0 {
+            self.weights[move_index].checked_sub(change.abs() as u64)
+        } else {
+            self.weights[move_index].checked_add(change as u64)
+        };
+
+        self.weights[move_index] = result.unwrap_or_else(|| {
+            if change < 0 {
+                return 0
+            } else {
+                return u64::MAX
+            };
+        })
     }
 }
 
