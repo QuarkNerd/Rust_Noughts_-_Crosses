@@ -9,16 +9,39 @@ use rand::prelude::*;
 use crate::shared_definitions::*;
 use std::u64;
 
-pub trait Player {
+trait PlayerTrait {
     fn make_move(&mut self, update: &GameStatus) -> String;
     fn take_result(&mut self, result: Result);
+}
+
+// cant accept generics in the play game function because Hashmap wants values to be same type.
+pub enum Player {
+    HumanPlayer(HumanPlayer),
+    ComputerLearner(ComputerLearner)
+}
+
+// match and extract is repeated because cant return a generic type wityhout having the generic come in at enum creation
+impl Player {
+    pub fn make_move(&mut self, update: &GameStatus) -> String {
+        match self {
+            Player::HumanPlayer(x)  => return x.make_move(update),
+            Player::ComputerLearner(x) => return x.make_move(update)
+        }
+    }
+
+    pub fn take_result(&mut self, result: Result) {
+        match self {
+            Player::HumanPlayer(x)  => x.take_result(result),
+            Player::ComputerLearner(x) => x.take_result(result)
+        };
+    }
 }
 
 pub struct HumanPlayer {
     identity: String,
 }
 
-impl Player for HumanPlayer {
+impl PlayerTrait for HumanPlayer {
     // don't need to make public because it's implied by use of a trait
     fn make_move(&mut self, update: &GameStatus) -> String {
         self.print_msg(&update.display_state);
@@ -118,7 +141,7 @@ impl ComputerLearner {
     }
 }
 
-impl Player for ComputerLearner {
+impl PlayerTrait for ComputerLearner {
     fn make_move(&mut self, update: &GameStatus) -> String {
         // clone removed "lifetime conflicting requriements error", not sure why it occurs,
         // after which the key to hashmap was changed to use static str

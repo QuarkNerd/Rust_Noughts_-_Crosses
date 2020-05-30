@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use crate::shared_definitions::*;
 use crate::players::*;
 
-pub fn play_game(player_one: &mut impl Player, player_two: &mut impl Player) {
+pub fn play_game(player_one: &mut Player, player_two: &mut Player) {
+    // this hashmap needs to use enum
     let mut players_by_symbol = HashMap::new();
     players_by_symbol.insert(PlayerSymbol::X,player_one);
     players_by_symbol.insert(PlayerSymbol::O,player_two); // did it this way so didint have to implement clone on human_player leads to having to make it mutable, is this okay?
@@ -28,7 +29,7 @@ pub fn play_game(player_one: &mut impl Player, player_two: &mut impl Player) {
     inform_player_result(players_by_symbol, winner)
 }
 
-fn get_player_to_move(board: &mut Board, player: &mut impl Player, symbol: PlayerSymbol) {
+fn get_player_to_move(board: &mut Board, player: &mut Player, symbol: PlayerSymbol) {
     let update = GameStatus {
         display_state: board.to_string(),
         minified_state: board.get_minified_state(symbol),
@@ -43,7 +44,7 @@ fn get_player_to_move(board: &mut Board, player: &mut impl Player, symbol: Playe
     }
 }
 
-fn inform_player_result(mut players_by_symbol: HashMap<PlayerSymbol, &mut impl Player>, winner: Option<PlayerSymbol>) {
+fn inform_player_result(mut players_by_symbol: HashMap<PlayerSymbol, &mut Player>, winner: Option<PlayerSymbol>) {
     match winner {
         Some(symbol) => {
             players_by_symbol.get_mut(&symbol).unwrap().take_result(Result::Win);
