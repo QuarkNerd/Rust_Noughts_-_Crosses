@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::shared_definitions::*;
 use crate::players::*;
 
-pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
+pub fn play_game(player_one: &mut impl Player, player_two: &mut impl Player) {
     let mut players_by_symbol = HashMap::new();
     players_by_symbol.insert(PlayerSymbol::X,player_one);
     players_by_symbol.insert(PlayerSymbol::O,player_two); // did it this way so didint have to implement clone on human_player leads to having to make it mutable, is this okay?
@@ -16,7 +16,7 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
     let mut winner: Option<PlayerSymbol> = None;
 
     for turn in 1..=9 {
-        let current_player = players_by_symbol.get(&current_symbol).unwrap();
+        let current_player = players_by_symbol.get_mut(&current_symbol).unwrap();
         get_player_to_move(&mut board, current_player, current_symbol);
         current_symbol = current_symbol.other();
 
@@ -28,7 +28,7 @@ pub fn play_game(player_one: &HumanPlayer, player_two: &HumanPlayer) {
     inform_player_result(players_by_symbol, winner)
 }
 
-fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSymbol) {
+fn get_player_to_move(board: &mut Board, player: &mut impl Player, symbol: PlayerSymbol) {
     let update = GameStatus {
         display_state: board.to_string(),
         minified_state: board.get_minified_state(symbol),
@@ -43,15 +43,15 @@ fn get_player_to_move(board: &mut Board, player: &HumanPlayer, symbol: PlayerSym
     }
 }
 
-fn inform_player_result(players_by_symbol: HashMap<PlayerSymbol, &HumanPlayer>, winner: Option<PlayerSymbol>) {
+fn inform_player_result(mut players_by_symbol: HashMap<PlayerSymbol, &mut impl Player>, winner: Option<PlayerSymbol>) {
     match winner {
         Some(symbol) => {
-            players_by_symbol.get(&symbol).unwrap().take_result(Result::Win);
-            players_by_symbol.get(&symbol.other()).unwrap().take_result(Result::Lose);
+            players_by_symbol.get_mut(&symbol).unwrap().take_result(Result::Win);
+            players_by_symbol.get_mut(&symbol.other()).unwrap().take_result(Result::Lose);
         }
         None => {
-            players_by_symbol.get(&PlayerSymbol::X).unwrap().take_result(Result::Draw);
-            players_by_symbol.get(&PlayerSymbol::O).unwrap().take_result(Result::Draw);
+            players_by_symbol.get_mut(&PlayerSymbol::X).unwrap().take_result(Result::Draw);
+            players_by_symbol.get_mut(&PlayerSymbol::O).unwrap().take_result(Result::Draw);
         }
     }
 }

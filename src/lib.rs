@@ -1,9 +1,13 @@
 use players::*;
 //cheched_sub
 pub fn run() {
-    let one = HumanPlayer::new("Player one name:");
-    let two = HumanPlayer::new("Player two name:");
-    normal_game::play_game(&one, &two);
+    let mut one = HumanPlayer::new("Player one name:");
+    let mut two = HumanPlayer::new("Player two name:");
+    normal_game::play_game(&mut one, &mut two);
+}
+
+struct pop {
+    fizz: u32
 }
 
 mod normal_game;
