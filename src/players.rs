@@ -150,14 +150,16 @@ pub struct ComputerLearner {
     // used to use static str but that cannot be calculated at runtime as state might be
     strategy_by_state: HashMap<String, Strategy>,
     current_game_history: Vec<GameStep>, // decided against HashMap because some games may allow repeating step
+    is_learning: bool,
 }
 
 
 impl ComputerLearner {
-    pub fn new() -> ComputerLearner {
+    pub fn new(is_learning: bool) -> ComputerLearner {
         ComputerLearner {
             strategy_by_state: HashMap::new(),
             current_game_history: Vec::new(),
+            is_learning,
         }
     }
 }
@@ -190,11 +192,13 @@ impl PlayerTrait for ComputerLearner {
 
         // can iterate over vectors by default, that caused errors as that gives ownership of elemtnst to 'step'
         // using iter_mut() would return mutable references.
+        
+        if self.is_learning {
         for step in self.current_game_history.iter() {
-            self.strategy_by_state.get_mut(&step.game_state).unwrap().update_weight(&step.move_made, change);
-        }
+                self.strategy_by_state.get_mut(&step.game_state).unwrap().update_weight(&step.move_made, change);
+            }
 
-        self.current_game_history = Vec::new();
-        // println!("{:?}", self.strategy_by_state)
+            self.current_game_history = Vec::new();
+        }
     }
 }
