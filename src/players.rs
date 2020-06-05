@@ -1,6 +1,6 @@
 use std::collections::hash_map::Entry;
 
-use std::fmt::Display;
+use std::fmt;
 use std::collections::HashMap;
 use crate::utilities::*;
 use rand::distributions::WeightedIndex;
@@ -65,7 +65,7 @@ impl HumanPlayer {
         }
     }
 
-    fn print_msg(&self, msg: impl Display) {
+    fn print_msg(&self, msg: impl fmt::Display) {
         println!("{:-^30}\n{}\n{:-<30}", &self.identity, msg, "");
     }
 
@@ -82,6 +82,14 @@ struct Strategy {
     weights: Vec<u64>
 }
 
+impl fmt::Debug for Strategy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.debug_struct("Strategy")
+            .field("moves", &self.moves)
+            .field("weights", &self.weights)
+            .finish()
+        }
+}
 impl Strategy {
     pub fn create_fresh(moves: Vec<String>, weight: u64) -> Strategy {
         // doing these two fields the other way around causes an error, because moves.len()
@@ -169,5 +177,6 @@ impl PlayerTrait for ComputerLearner {
         }
 
         self.current_game_history = Vec::new();
+        // println!("{:?}", self.strategy_by_state)
     }
 }
