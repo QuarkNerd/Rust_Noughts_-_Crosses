@@ -126,6 +126,19 @@ impl Strategy {
             };
         })
     }
+
+    pub fn reset_weight(&mut self, weight: u64) {
+        self.weights = vec![weight; self.moves.len()]
+    }
+
+    pub fn is_empty(&mut self) -> bool {
+        for x in &self.weights {
+            if x != &0 {
+                return false;
+            }
+        };
+        true
+    }
 }
 
 const STARTING_WEIGHT: u64 = 15;
@@ -153,16 +166,21 @@ impl PlayerTrait for ComputerLearner {
     fn make_move(&mut self, update: &GameStatus) -> String {
         // clone removed "lifetime conflicting requriements error", not sure why it occurs,
         // after which the key to hashmap was changed to use static str
-        let current_strategy: &Strategy = match self.strategy_by_state.entry(update.minified_state.clone()) {
+        let current_strategy: &mut Strategy = match self.strategy_by_state.entry(update.minified_state.clone()) {
             Entry::Occupied(o) => o.into_mut(),
             Entry::Vacant(v) => v.insert(Strategy::create_fresh(update.possible_moves.clone(), STARTING_WEIGHT))
         };
+
+        if current_strategy.is_empty() {
+            current_strategy.reset_weight(STARTING_WEIGHT);
+        }
 
         let selected_move = current_strategy.weighted_pick();
         self.current_game_history.push(GameStep {game_state: update.minified_state.clone(), move_made:selected_move.clone()});
 
         selected_move
     }
+
     fn take_result(&mut self, result: Result) {
         let change = match result {
             Result::Win => WIN_CHANGE,
