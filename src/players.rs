@@ -159,7 +159,6 @@ pub struct ComputerLearner {
     is_learning: bool,
 }
 
-
 impl ComputerLearner {
     pub fn new(is_learning: bool) -> ComputerLearner {
         ComputerLearner {
