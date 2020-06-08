@@ -1,13 +1,17 @@
 use std::collections::hash_map::Entry;
-
-use std::fmt;
 use std::collections::HashMap;
-use crate::utilities::*;
-use rand::distributions::WeightedIndex;
-
-use rand::prelude::*;
-use crate::shared_definitions::*;
+use std::path::PathBuf;
+use std::fmt;
 use std::u64;
+
+use serde::{Serialize, Deserialize};
+use rand::distributions::WeightedIndex;
+use rand::prelude::*;
+
+use crate::utilities::*;
+use crate::shared_definitions::*;
+
+const STRATEGY_FOLDER: &str  = r"player_strategy";
 
 trait PlayerTrait {
     fn make_move(&mut self, update: &GameStatus) -> String;
@@ -77,9 +81,10 @@ struct GameStep {
 }
 
 // could store as a HashMap but then wold have to extract the keys and values on every weighted_pick
-struct Strategy {
-    moves: Vec<String>,
-    weights: Vec<u64>
+#[derive(Serialize, Deserialize)]
+pub struct Strategy {
+    pub moves: Vec<String>,
+    pub weights: Vec<u64>
 }
 
 impl fmt::Debug for Strategy {
@@ -90,6 +95,7 @@ impl fmt::Debug for Strategy {
             .finish()
         }
 }
+
 impl Strategy {
     pub fn create_fresh(moves: Vec<String>, weight: u64) -> Strategy {
         // doing these two fields the other way around causes an error, because moves.len()
@@ -148,7 +154,7 @@ const LOSE_CHANGE: i64 = -2;
 
 pub struct ComputerLearner {
     // used to use static str but that cannot be calculated at runtime as state might be
-    strategy_by_state: HashMap<String, Strategy>,
+    pub strategy_by_state: HashMap<String, Strategy>,
     current_game_history: Vec<GameStep>, // decided against HashMap because some games may allow repeating step
     is_learning: bool,
 }
@@ -161,6 +167,28 @@ impl ComputerLearner {
             current_game_history: Vec::new(),
             is_learning,
         }
+    }
+
+    pub fn save(&self, filename: &str) {
+        let path = ComputerLearner::get_strategy_file_path(filename);
+        save_with_relative_path(&self.strategy_by_state, path);
+    }
+
+    // let a: Strategy = open_with_relative_path::<Strategy>(file);
+    pub fn load(filename: &str, is_learning: bool) -> ComputerLearner {
+        let path = ComputerLearner::get_strategy_file_path(filename);
+        ComputerLearner {
+            strategy_by_state: open_with_relative_path(path),
+            current_game_history: Vec::new(),
+            is_learning,
+        }
+    }
+
+    fn get_strategy_file_path(filename: &str) -> PathBuf {
+        let mut path = PathBuf::new();
+        path.push(STRATEGY_FOLDER);
+        path.push(filename);
+        path
     }
 }
 
