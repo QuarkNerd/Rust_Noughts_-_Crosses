@@ -1,4 +1,5 @@
 use std::env::current_dir;
+use std::collections::HashMap;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::fs::File;
@@ -6,6 +7,23 @@ use std::io;
 
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+
+pub fn get_user_selection(options: &HashMap<&str, &str>) -> String {
+    let mut prompt = "Please select from the following options \n\n".to_string();
+
+    for (key, description) in options.iter() {
+        prompt.push_str(&format!("{}: {} \n", &key, &description));
+    }
+
+    let mut input = String::new();
+
+    while !options.contains_key(input.as_str()) {
+        input = get_user_input(&prompt);
+    }
+
+    input
+}
+
 
 pub fn get_user_input(prompt: &str) -> String {
     println!("{}", prompt);
