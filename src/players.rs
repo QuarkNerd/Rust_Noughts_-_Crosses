@@ -5,6 +5,7 @@ use std::fmt;
 use std::u64;
 
 use serde::{Serialize, Deserialize};
+// use serde::de::DeserializeOwned;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 
@@ -154,7 +155,7 @@ const LOSE_CHANGE: i64 = -2;
 
 pub struct ComputerLearner {
     // used to use static str but that cannot be calculated at runtime as state might be
-    pub strategy_by_state: HashMap<String, Strategy>,
+    strategy_by_state: HashMap<String, Strategy>,
     current_game_history: Vec<GameStep>, // decided against HashMap because some games may allow repeating step
     is_learning: bool,
 }
@@ -176,8 +177,9 @@ impl ComputerLearner {
     // let a: Strategy = open_with_relative_path::<Strategy>(file);
     pub fn load(filename: &str, is_learning: bool) -> ComputerLearner {
         let path = ComputerLearner::get_strategy_file_path(filename);
+        let a : HashMap<String, Strategy> = open_with_relative_path(path);
         ComputerLearner {
-            strategy_by_state: open_with_relative_path(path),
+            strategy_by_state: a,//open_with_relative_path(path),
             current_game_history: Vec::new(),
             is_learning,
         }
@@ -193,8 +195,7 @@ impl ComputerLearner {
 
 impl PlayerTrait for ComputerLearner {
     fn make_move(&mut self, update: &GameStatus) -> String {
-        // clone removed "lifetime conflicting requriements error", not sure why it occurs,
-        // after which the key to hashmap was changed to use static str
+        // clone removed "lifetime conflicting requriements error", 
         let current_strategy: &mut Strategy = match self.strategy_by_state.entry(update.minified_state.clone()) {
             Entry::Occupied(o) => o.into_mut(),
             Entry::Vacant(v) => v.insert(Strategy::create_fresh(update.possible_moves.clone(), STARTING_WEIGHT))
@@ -222,10 +223,14 @@ impl PlayerTrait for ComputerLearner {
         
         if self.is_learning {
         for step in self.current_game_history.iter() {
-                self.strategy_by_state.get_mut(&step.game_state).unwrap().update_weight(&step.move_made, change);
+                self.strategy_by_state.get_mut::<str>(&step.game_state).unwrap().update_weight(&step.move_made, change);
             }
 
             self.current_game_history = Vec::new();
         }
     }
 }
+
+// pub struct ComputerPlayer {
+
+// }
