@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::fs::File;
+use std::hash::Hash;
 use std::io;
 
 use serde::Serialize;
@@ -57,4 +58,19 @@ pub fn open_with_relative_path<T>(file: PathBuf) -> T
     file.read_to_string(&mut serialized_string).unwrap();
     let a: T = serde_json::from_str(&serialized_string).unwrap();
     a
+}
+
+
+pub fn map_a_hash_map<T,U, V, W>(original: &HashMap<T,U>, key_value_mapper: fn((&T,&U)) -> (V,W) ) -> HashMap<V,W> 
+    where 
+        V: Hash + Eq + PartialEq,
+{
+    let mut new_hash_map: HashMap<V,W> = HashMap::new();
+
+    for original_key_vlue_pair in original {
+        let new_key_vlue_pair = key_value_mapper(original_key_vlue_pair);
+        new_hash_map.insert(new_key_vlue_pair.0, new_key_vlue_pair.1);
+    };
+
+    new_hash_map
 }
