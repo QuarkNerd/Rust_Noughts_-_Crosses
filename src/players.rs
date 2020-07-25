@@ -29,22 +29,26 @@ trait PlayerTrait {
 // cant accept generics in the play game function because Hashmap wants values to be same type.
 pub enum Player {
     HumanPlayer(HumanPlayer),
-    ComputerLearner(ComputerLearner)
+    ComputerLearner(ComputerLearner),
+    ComputerPlayer(ComputerPlayer),
 }
 
-// match and extract is repeated because cant return a generic type wityhout having the generic come in at enum creation
+// match and extract is repeated because cant return a generic type without having the generic come in at enum creation
+// maybe look into macros
 impl Player {
     pub fn make_move(&mut self, update: &GameStatus) -> String {
         match self {
             Player::HumanPlayer(x)  => return x.make_move(update),
-            Player::ComputerLearner(x) => return x.make_move(update)
+            Player::ComputerLearner(x) => return x.make_move(update),
+            Player::ComputerPlayer(x) => return x.make_move(update)
         }
     }
 
     pub fn take_result(&mut self, result: Result) {
         match self {
             Player::HumanPlayer(x)  => x.take_result(result),
-            Player::ComputerLearner(x) => x.take_result(result)
+            Player::ComputerLearner(x) => x.take_result(result),
+            Player::ComputerPlayer(x) => x.take_result(result)
         };
     }
 }
