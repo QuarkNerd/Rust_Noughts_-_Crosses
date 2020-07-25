@@ -250,7 +250,8 @@ impl PlayerTrait for ComputerLearner {
 
 // a computer player will load a strategy and only chooses the best option at each stage
 pub struct ComputerPlayer {
-    strategy_by_state: HashMap<String, String>
+    strategy_by_state: HashMap<String, String>,
+    results_tracking: HashMap<Result, u32>
 }
 
 impl ComputerPlayer {
@@ -262,8 +263,17 @@ impl ComputerPlayer {
             (initial.0.clone(), initial.1.get_highest_weighted_choice())
         }
 
+        let results_tracking: HashMap<Result, u32> =
+            [
+                (Result::Lose, 0 as u32),
+                (Result::Draw, 0 as u32),
+                (Result::Win, 0 as u32),
+                ]
+            .iter().cloned().collect();
+
         ComputerPlayer {
             strategy_by_state: map_a_hash_map(&loaded_strategy_by_state, key_value_mapper),
+            results_tracking
         }
     }
     
@@ -275,5 +285,6 @@ impl PlayerTrait for ComputerPlayer {
     }
     
     fn take_result(&mut self, result: Result) {
+        *self.results_tracking.get_mut(&result).unwrap() += 1;
     }
 }

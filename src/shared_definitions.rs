@@ -1,3 +1,4 @@
+#[derive(PartialEq, Eq, Hash, Clone)]
 pub enum Result {
     Win, Draw, Lose
 }
