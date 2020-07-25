@@ -14,6 +14,13 @@ use crate::shared_definitions::*;
 
 const STRATEGY_FOLDER: &str  = r"player_strategy";
 
+fn get_strategy_file_path(filename: &str) -> PathBuf {
+        let mut path = PathBuf::new();
+        path.push(STRATEGY_FOLDER);
+        path.push(filename);
+        path
+    }
+
 trait PlayerTrait {
     fn make_move(&mut self, update: &GameStatus) -> String;
     fn take_result(&mut self, result: Result);
@@ -188,26 +195,19 @@ impl ComputerLearner {
     }
 
     pub fn save(&self, filename: &str) {
-        let path = ComputerLearner::get_strategy_file_path(filename);
+        let path = get_strategy_file_path(filename);
         save_with_relative_path(&self.strategy_by_state, path);
     }
 
     // let a: Strategy = open_with_relative_path::<Strategy>(file);
     pub fn load(filename: &str, is_learning: bool) -> ComputerLearner {
-        let path = ComputerLearner::get_strategy_file_path(filename);
+        let path = get_strategy_file_path(filename);
         let a : HashMap<String, Strategy> = open_with_relative_path(path);
         ComputerLearner {
             strategy_by_state: a,//open_with_relative_path(path),
             current_game_history: Vec::new(),
             is_learning,
         }
-    }
-
-    fn get_strategy_file_path(filename: &str) -> PathBuf {
-        let mut path = PathBuf::new();
-        path.push(STRATEGY_FOLDER);
-        path.push(filename);
-        path
     }
 }
 
