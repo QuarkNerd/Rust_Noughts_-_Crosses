@@ -80,7 +80,6 @@ impl HumanPlayer {
     fn print_msg(&self, msg: impl fmt::Display) {
         println!("{:-^30}\n{}\n{:-<30}", &self.identity, msg, "");
     }
-
 }
 
 struct GameStep {
@@ -101,7 +100,7 @@ impl fmt::Debug for Strategy {
             .field("moves", &self.moves)
             .field("weights", &self.weights)
             .finish()
-        }
+    }
 }
 
 impl Strategy {
@@ -222,33 +221,59 @@ impl PlayerTrait for ComputerLearner {
         if current_strategy.is_empty() {
             current_strategy.reset_weight(STARTING_WEIGHT);
         }
-
+        
         let selected_move = current_strategy.weighted_pick();
         self.current_game_history.push(GameStep {game_state: update.minified_state.clone(), move_made:selected_move.clone()});
-
+        
         selected_move
     }
-
+    
     fn take_result(&mut self, result: Result) {
         let change = match result {
             Result::Win => WIN_CHANGE,
             Result::Draw => DRAW_CHANGE,
             Result::Lose => LOSE_CHANGE,
         };
-
+        
         // can iterate over vectors by default, that caused errors as that gives ownership of elemtnst to 'step'
         // using iter_mut() would return mutable references.
         
         if self.is_learning {
-        for step in self.current_game_history.iter() {
+            for step in self.current_game_history.iter() {
                 self.strategy_by_state.get_mut::<str>(&step.game_state).unwrap().update_weight(&step.move_made, change);
             }
-
+            
             self.current_game_history = Vec::new();
         }
     }
 }
 
-// pub struct ComputerPlayer {
+// a computer player will load a strategy and only chooses the best option at each stage
+pub struct ComputerPlayer {
+    strategy_by_state: HashMap<String, String>
+}
 
-// }
+impl ComputerPlayer {
+    pub fn load(filename: &str) -> ComputerPlayer {
+        let path = get_strategy_file_path(filename);
+        let loaded_strategy_by_state : HashMap<String, Strategy> = open_with_relative_path(path);
+        
+        fn key_value_mapper(initial : (&String, &Strategy)) -> (String, String) {
+            (initial.0.clone(), initial.1.get_highest_weighted_choice())
+        }
+
+        ComputerPlayer {
+            strategy_by_state: map_a_hash_map(&loaded_strategy_by_state, key_value_mapper),
+        }
+    }
+    
+}
+
+impl PlayerTrait for ComputerPlayer {
+    fn make_move(&mut self, update: &GameStatus) -> String {
+        self.strategy_by_state[&update.minified_state].clone()
+    }
+    
+    fn take_result(&mut self, result: Result) {
+    }
+}
