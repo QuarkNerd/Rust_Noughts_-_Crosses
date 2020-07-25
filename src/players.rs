@@ -146,6 +146,24 @@ impl Strategy {
         };
         true
     }
+
+    //not the best choice as it will choose just one of two if two are equal
+    pub fn get_highest_weighted_choice(&self) -> String {
+        let mut iter = self.weights.iter().enumerate();
+        let init = iter.next().unwrap();
+        let highest = iter.try_fold(init, |acc, x| {
+        let max = if x.1 > acc.1 {
+            x
+        } else {
+             acc
+        };
+        Some(max)
+        });
+
+        let index_of_highest = highest.unwrap().0;
+
+        self.moves[index_of_highest].clone()
+    }
 }
 
 const STARTING_WEIGHT: u64 = 15;
