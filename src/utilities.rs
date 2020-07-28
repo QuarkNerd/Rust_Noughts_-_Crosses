@@ -9,31 +9,6 @@ use std::io;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
-pub struct user_selection_option<'a>{
-    pub description: &'a str,
-    pub callback: Option<fn()>,
-}
-
-pub fn get_user_selection(options: &HashMap<&str, user_selection_option>) -> () {
-    let mut prompt = "Please select from the following options \n\n".to_string();
-
-    for (key, option_details) in options.iter() {
-        prompt.push_str(&format!("{}: {} \n", &key, &option_details.description));
-    }
-
-    let mut input = String::new();
-
-    while !options.contains_key(input.as_str()) {
-        input = get_user_input(&prompt);
-    }
-
-    match options[input.as_str()].callback {
-        Some(callback) => callback(),
-        None => ()
-    }
-}
-
-
 pub fn get_user_input(prompt: &str) -> String {
     println!("{}", prompt);
 
