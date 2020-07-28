@@ -53,6 +53,22 @@ impl Player {
     }
 }
 
+
+impl fmt::Display for Player {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let string;
+        let disp = match &self {
+            Player::HumanPlayer(_)  => "Human Player",
+            Player::ComputerLearner(x) => {
+                string = format!("Computer Learner - Learning: {}", x.is_learning);
+                string.as_str()
+            },
+            Player::ComputerPlayer(_) => "Computer Player"
+        };
+        write!(f, "{}", disp)
+    }
+}
+
 pub struct HumanPlayer {
     identity: String,
 }
