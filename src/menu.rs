@@ -2,7 +2,7 @@
 use crate::utilities::*;
 
 pub enum menu_option_action<'a, T> {
-    sub_menu(Vec<menu_option<'a, T>>),
+    sub_menu(menu_section<'a, T>),
     callback(fn(state: T) -> T),
     leave
 }
@@ -10,7 +10,7 @@ pub enum menu_option_action<'a, T> {
 impl<'a, T> Clone for menu_option_action<'a, T> {
     fn clone(&self) -> Self {
         match self {
-            menu_option_action::sub_menu(sub) => menu_option_action::sub_menu(sub.to_vec()),
+            menu_option_action::sub_menu(sub) => menu_option_action::sub_menu(sub.clone()),
             menu_option_action::callback(f) => menu_option_action::callback(*f),
             menu_option_action::leave => menu_option_action::leave,
         }   
@@ -33,10 +33,29 @@ impl<'a, T> Clone for menu_option<'a, T>{
     }
 }
 
-pub fn show_menu<'a, T>(options: &Vec<menu_option<&'a mut T>>, state: &'a mut T) -> &'a mut T{
+pub struct menu_section<'a, T> {
+    pub options: Vec<menu_option<'a, T>>,
+    pub preamble_generator: fn(state: T) -> (T, String)
+}
+
+impl<'a, T> Clone for menu_section<'a, T> {
+    fn clone(&self) -> Self {
+        menu_section {
+            options: self.options.to_vec(),
+            preamble_generator: self.preamble_generator
+        }
+    }
+}
+
+pub fn show_menu<'a, T>(menu: &menu_section<'a, &'a mut T>, state: &'a mut T) -> &'a mut T{
     let mut state = state;
+    let options = &menu.options;
+
     loop {
-        let mut prompt = "Please select from the following options \n\n".to_string();
+        let preamble_return = (menu.preamble_generator)(state);
+        state = preamble_return.0;
+        let mut prompt = preamble_return.1;
+        prompt.push_str("\n\n");
 
         for menu_item in options.iter() {
             prompt.push_str(&format!("{}: {} \n", &menu_item.command, &menu_item.description));
@@ -51,7 +70,7 @@ pub fn show_menu<'a, T>(options: &Vec<menu_option<&'a mut T>>, state: &'a mut T)
         }
 
         match &selected_option.unwrap().action {
-            menu_option_action::sub_menu(sub_menu) => state = show_menu(&sub_menu, state),
+            menu_option_action::sub_menu(sub_menu) => state = show_menu(sub_menu, state),
             menu_option_action::callback(callback) => state = callback(state),
             menu_option_action::leave => break,
         }
