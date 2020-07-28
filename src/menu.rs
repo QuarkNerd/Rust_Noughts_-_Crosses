@@ -1,17 +1,36 @@
 
 use crate::utilities::*;
 
-#[derive(Clone)]
 pub enum menu_option_action<'a, T> {
     sub_menu(Vec<menu_option<'a, T>>),
     callback(fn(state: T) -> T),
     leave
 }
-#[derive(Clone)]
+
+impl<'a, T> Clone for menu_option_action<'a, T> {
+    fn clone(&self) -> Self {
+        match self {
+            menu_option_action::sub_menu(sub) => menu_option_action::sub_menu(sub.to_vec()),
+            menu_option_action::callback(f) => menu_option_action::callback(*f),
+            menu_option_action::leave => menu_option_action::leave,
+        }   
+    }
+}
+
 pub struct menu_option<'a, T> {
     pub command: &'a str,
     pub description: &'a str,
     pub action: menu_option_action<'a, T>,
+}
+
+impl<'a, T> Clone for menu_option<'a, T>{
+    fn clone(&self) -> Self {
+        menu_option {
+            command: self.command.clone(),
+            description: self.description.clone(),
+            action: self.action.clone(),
+        }
+    }
 }
 
 pub fn show_menu<'a, T>(options: &Vec<menu_option<&'a mut T>>, state: &'a mut T) -> &'a mut T{
