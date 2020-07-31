@@ -25,8 +25,8 @@ pub fn play_game(player_one: &mut Player, player_two: &mut Player) {
             winner = board.get_winner();
             if winner.is_some() { break; }
         }
-    }
-    inform_player_result(players_by_symbol, winner)
+    };
+    inform_player_result(players_by_symbol, winner);
 }
 
 fn get_player_to_move(board: &mut Board, player: &mut Player, symbol: PlayerSymbol) {

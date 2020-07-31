@@ -32,7 +32,7 @@ pub fn save_with_relative_path(object: &impl Serialize, file: PathBuf) {
 }
 
 // DeserizeOwned is different DeserizeOwned
-pub fn open_with_relative_path<T>(file: PathBuf) -> T 
+pub fn deserialize_from_relative_path<T>(file: PathBuf) -> T
     where 
         T: DeserializeOwned
 {

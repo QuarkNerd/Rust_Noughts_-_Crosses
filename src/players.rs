@@ -221,7 +221,7 @@ impl ComputerLearner {
     // let a: Strategy = open_with_relative_path::<Strategy>(file);
     pub fn load(filename: &str, is_learning: bool) -> ComputerLearner {
         let path = get_strategy_file_path(filename);
-        let a : HashMap<String, Strategy> = open_with_relative_path(path);
+        let a : HashMap<String, Strategy> = deserialize_from_relative_path(path);
         ComputerLearner {
             strategy_by_state: a,//open_with_relative_path(path),
             current_game_history: Vec::new(),
@@ -281,7 +281,7 @@ pub struct ComputerPlayer {
 impl ComputerPlayer {
     pub fn load(filename: &str) -> ComputerPlayer {
         let path = get_strategy_file_path(filename);
-        let loaded_strategy_by_state : HashMap<String, Strategy> = open_with_relative_path(path);
+        let loaded_strategy_by_state : HashMap<String, Strategy> = deserialize_from_relative_path(path);
         
         fn key_value_mapper(initial : (&String, &Strategy)) -> (String, String) {
             (initial.0.clone(), initial.1.get_highest_weighted_choice())
