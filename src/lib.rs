@@ -11,35 +11,35 @@ pub fn run() {
     let mut state: StateType = HashMap::new();
 
     let leave_option = 
-        menu_option::<&mut StateType> {
+        MenuOption::<&mut StateType> {
             command: "l",
             description: "leave",
-            action: menu_option_action::leave
+            action: MenuOptionAction::Leave
         };
 
     let options = 
         vec![
-            menu_option {
+            MenuOption {
                 command: "p",
                 description: "play a game or train a machine",
-                action: menu_option_action::sub_menu(
-                    menu_section {
+                action: MenuOptionAction::SubMenu(
+                    MenuSection {
                         options: 
                             vec![
-                                menu_option {
+                                MenuOption {
                                     command: "o",
                                     description: "one player game (vs computer)",
-                                    action: menu_option_action::callback(one_player_game)
+                                    action: MenuOptionAction::Callback(one_player_game)
                                 },
-                                menu_option {
+                                MenuOption {
                                     command: "t",
                                     description: "two player game",
-                                    action: menu_option_action::callback(two_player_game)
+                                    action: MenuOptionAction::Callback(two_player_game)
                                 },
-                                menu_option {
+                                MenuOption {
                                     command: "t",
                                     description: "train computers",
-                                    action: menu_option_action::callback(train_computers)
+                                    action: MenuOptionAction::Callback(train_computers)
                                 },
                                 leave_option.clone()
                             ],
@@ -47,44 +47,44 @@ pub fn run() {
                     }
                 )
             },
-            menu_option {
+            MenuOption {
                 command: "a",
                 description: "add/remove players",
-                action: menu_option_action::sub_menu(
-                    menu_section {
+                action: MenuOptionAction::SubMenu(
+                    MenuSection {
                         options: 
                             vec![
-                                menu_option {
+                                MenuOption {
                                     command: "r",
                                     description: "remove a player",
-                                    action: menu_option_action::callback(remove_a_player)
+                                    action: MenuOptionAction::Callback(remove_a_player)
                                 },
-                                menu_option {
+                                MenuOption {
                                     command: "s",
                                     description: "save a computer learner",
-                                    action: menu_option_action::callback(save_a_computer_player)
+                                    action: MenuOptionAction::Callback(save_a_computer_player)
                                 },
-                                menu_option {
+                                MenuOption {
                                     command: "a",
                                     description: "add a player",
-                                    action: menu_option_action::sub_menu(
-                                        menu_section {
+                                    action: MenuOptionAction::SubMenu(
+                                        MenuSection {
                                             options: 
                                                 vec![
-                                                    menu_option {
+                                                    MenuOption {
                                                         command: "n",
                                                         description: "new computer learner",
-                                                        action: menu_option_action::callback(new_learner)
+                                                        action: MenuOptionAction::Callback(new_learner)
                                                     },
-                                                    menu_option {
+                                                    MenuOption {
                                                         command: "ll",
                                                         description: "load a computer learner",
-                                                        action: menu_option_action::callback(load_learner)
+                                                        action: MenuOptionAction::Callback(load_learner)
                                                     },
-                                                    menu_option {
+                                                    MenuOption {
                                                         command: "lp",
                                                         description: "load a computer player",
-                                                        action: menu_option_action::callback(load_comp_player)
+                                                        action: MenuOptionAction::Callback(load_comp_player)
                                                     },
                                                     leave_option.clone()
                                                 ],
@@ -92,10 +92,10 @@ pub fn run() {
                                         }
                                     )
                                 },
-                                menu_option {
+                                MenuOption {
                                     command: "s",
                                     description: "toggle the learning status of a computer learner",
-                                    action: menu_option_action::callback(toggle_learning)
+                                    action: MenuOptionAction::Callback(toggle_learning)
                                 },
                                 leave_option.clone()
                             ],
@@ -106,7 +106,7 @@ pub fn run() {
                 leave_option.clone()
         ];
         
-    let menu = menu_section {
+    let menu = MenuSection {
         options,
         preamble_generator: player_hashmap_display
     };

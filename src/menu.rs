@@ -1,31 +1,31 @@
 
 use crate::utilities::*;
 
-pub enum menu_option_action<'a, T> {
-    sub_menu(menu_section<'a, T>),
-    callback(fn(state: T) -> T),
-    leave
+pub enum MenuOptionAction<'a, T> {
+    SubMenu(MenuSection<'a, T>),
+    Callback(fn(state: T) -> T),
+    Leave
 }
 
-impl<'a, T> Clone for menu_option_action<'a, T> {
+impl<'a, T> Clone for MenuOptionAction<'a, T> {
     fn clone(&self) -> Self {
         match self {
-            menu_option_action::sub_menu(sub) => menu_option_action::sub_menu(sub.clone()),
-            menu_option_action::callback(f) => menu_option_action::callback(*f),
-            menu_option_action::leave => menu_option_action::leave,
+            MenuOptionAction::SubMenu(sub) => MenuOptionAction::SubMenu(sub.clone()),
+            MenuOptionAction::Callback(f) => MenuOptionAction::Callback(*f),
+            MenuOptionAction::Leave => MenuOptionAction::Leave,
         }   
     }
 }
 
-pub struct menu_option<'a, T> {
+pub struct MenuOption<'a, T> {
     pub command: &'a str,
     pub description: &'a str,
-    pub action: menu_option_action<'a, T>,
+    pub action: MenuOptionAction<'a, T>,
 }
 
-impl<'a, T> Clone for menu_option<'a, T>{
+impl<'a, T> Clone for MenuOption<'a, T>{
     fn clone(&self) -> Self {
-        menu_option {
+        MenuOption {
             command: self.command.clone(),
             description: self.description.clone(),
             action: self.action.clone(),
@@ -33,21 +33,21 @@ impl<'a, T> Clone for menu_option<'a, T>{
     }
 }
 
-pub struct menu_section<'a, T> {
-    pub options: Vec<menu_option<'a, T>>,
+pub struct MenuSection<'a, T> {
+    pub options: Vec<MenuOption<'a, T>>,
     pub preamble_generator: fn(state: T) -> (T, String)
 }
 
-impl<'a, T> Clone for menu_section<'a, T> {
+impl<'a, T> Clone for MenuSection<'a, T> {
     fn clone(&self) -> Self {
-        menu_section {
+        MenuSection {
             options: self.options.to_vec(),
             preamble_generator: self.preamble_generator
         }
     }
 }
 
-pub fn show_menu<'a, T>(menu: &menu_section<'a, &'a mut T>, state: &'a mut T) -> &'a mut T{
+pub fn show_menu<'a, T>(menu: &MenuSection<'a, &'a mut T>, state: &'a mut T) -> &'a mut T{
     let mut state = state;
     let options = &menu.options;
 
@@ -61,8 +61,8 @@ pub fn show_menu<'a, T>(menu: &menu_section<'a, &'a mut T>, state: &'a mut T) ->
             prompt.push_str(&format!("{}: {} \n", &menu_item.command, &menu_item.description));
         }
 
-        let mut input = String::new();
-        let mut selected_option: Option<&menu_option<&mut T>> = None;
+        let mut input;
+        let mut selected_option: Option<&MenuOption<&mut T>> = None;
 
         while selected_option.is_none() {
            input = get_user_input_line(&prompt);
@@ -70,9 +70,9 @@ pub fn show_menu<'a, T>(menu: &menu_section<'a, &'a mut T>, state: &'a mut T) ->
         }
 
         match &selected_option.unwrap().action {
-            menu_option_action::sub_menu(sub_menu) => state = show_menu(sub_menu, state),
-            menu_option_action::callback(callback) => state = callback(state),
-            menu_option_action::leave => break,
+            MenuOptionAction::SubMenu(sub_menu) => state = show_menu(sub_menu, state),
+            MenuOptionAction::Callback(callback) => state = callback(state),
+            MenuOptionAction::Leave => break,
         }
     }
 

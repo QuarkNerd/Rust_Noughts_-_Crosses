@@ -31,7 +31,7 @@ pub fn save_with_relative_path(object: &impl Serialize, file: PathBuf) {
     file.write_all(string.as_bytes()); // as bytes converts it to byte array
 }
 
-// DeserizeOwned is different DeserizeOwned
+// DeserizeOwned is different Deserize
 pub fn deserialize_from_relative_path<T>(file: PathBuf) -> T
     where 
         T: DeserializeOwned
