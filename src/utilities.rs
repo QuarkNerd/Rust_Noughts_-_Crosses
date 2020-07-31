@@ -9,7 +9,9 @@ use std::io;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
-pub fn get_user_input(prompt: &str) -> String {
+// pub fn get
+
+pub fn get_user_input_line(prompt: &str) -> String {
     println!("{}", prompt);
 
     let mut input = String::new();

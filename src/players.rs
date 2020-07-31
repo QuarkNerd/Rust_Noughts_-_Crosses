@@ -77,7 +77,7 @@ impl PlayerTrait for HumanPlayer {
     // don't need to make public because it's implied by use of a trait
     fn make_move(&mut self, update: &GameStatus) -> String {
         self.print_msg(&update.display_state);
-        get_user_input("What is your next move?")
+        get_user_input_line("What is your next move?")
     }
 
     fn take_result(&mut self, result: Result) {
@@ -93,7 +93,7 @@ impl PlayerTrait for HumanPlayer {
 impl HumanPlayer {
     pub fn new(prompt : &str) -> HumanPlayer {
         HumanPlayer {
-            identity: get_user_input(prompt)
+            identity: get_user_input_line(prompt)
         }
     }
 
@@ -227,6 +227,10 @@ impl ComputerLearner {
             current_game_history: Vec::new(),
             is_learning,
         }
+    }
+
+    pub fn toggle_is_learning(&mut self) {
+        self.is_learning = !self.is_learning;
     }
 }
 

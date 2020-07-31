@@ -82,7 +82,7 @@ impl PlayerSymbol {
     }
 }
 
-pub struct Board([[Option<PlayerSymbol>; 3] ; 3]);
+struct Board([[Option<PlayerSymbol>; 3] ; 3]);
 
 impl Board {
     fn try_apply_move(&mut self, player: PlayerSymbol, pos: &str) -> bool {

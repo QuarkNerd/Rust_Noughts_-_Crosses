@@ -65,7 +65,7 @@ pub fn show_menu<'a, T>(menu: &menu_section<'a, &'a mut T>, state: &'a mut T) ->
         let mut selected_option: Option<&menu_option<&mut T>> = None;
 
         while selected_option.is_none() {
-           input = get_user_input(&prompt);
+           input = get_user_input_line(&prompt);
            selected_option = options.iter().find(|&x| x.command == input);
         }
 
