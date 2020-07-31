@@ -2,6 +2,7 @@ use players::*;
 use utilities::*;
 use menu::*;
 use std::collections::HashMap;
+use normal_game::play_game;
 
 type StateType = HashMap<String, Player>;
 const COMPUTER_NAME_LENGTH_LIMIT: usize  = 10;
@@ -26,22 +27,19 @@ pub fn run() {
                         options: 
                             vec![
                                 menu_option {
+                                    command: "o",
+                                    description: "one player game (vs computer)",
+                                    action: menu_option_action::callback(one_player_game)
+                                },
+                                menu_option {
                                     command: "t",
-                                    description: "thing",
-                                    action: menu_option_action::sub_menu(
-                                        menu_section {
-                                            options: 
-                                                vec![
-                                                    menu_option {
-                                                        command: "t",
-                                                        description: "thing",
-                                                        action: menu_option_action::callback(remove_a_player)
-                                                    },
-                                                    leave_option.clone()
-                                                ],
-                                            preamble_generator: player_hashmap_display
-                                        }
-                                    )
+                                    description: "two player game",
+                                    action: menu_option_action::callback(two_player_game)
+                                },
+                                menu_option {
+                                    command: "t",
+                                    description: "train computers",
+                                    action: menu_option_action::callback(train_computers)
                                 },
                                 leave_option.clone()
                             ],
@@ -114,6 +112,31 @@ pub fn run() {
     };
 
         show_menu(&menu, &mut state);
+}
+fn one_player_game(state: &mut StateType) -> &mut StateType {
+    let mut person = Player::HumanPlayer(HumanPlayer::new("Enter your name:"));
+    let opponent_name = get_user_input_line("Who do you want to play?");
+    let opponent = state.get_mut(&opponent_name).unwrap();
+    let switch_to_second = get_user_input_line("Do you want to go first? (Yes- press enter, No-Type anything and press enter)");
+    if switch_to_second == "".to_string() {
+        play_game(&mut person, opponent);
+    } else {
+        play_game(opponent, &mut person);
+    }
+    state
+}
+
+fn two_player_game(state: &mut StateType) -> &mut StateType {
+    let mut player_one = Player::HumanPlayer(HumanPlayer::new("Player one name?"));
+    let mut player_two = Player::HumanPlayer(HumanPlayer::new("Player two name?"));
+    play_game(&mut player_one, &mut player_two);
+
+    state
+}
+fn train_computers(state: &mut StateType) -> &mut StateType {
+    let filename = get_user_input_line("Enter filename of training regime:");
+
+    state
 }
     
 fn new_learner(state: &mut StateType) -> &mut StateType {
