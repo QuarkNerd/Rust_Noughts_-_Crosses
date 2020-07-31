@@ -1,6 +1,5 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::fmt;
 use std::u64;
 
@@ -13,13 +12,6 @@ use crate::utilities::*;
 use crate::shared_definitions::*;
 
 const STRATEGY_FOLDER: &str  = r"player_strategy";
-
-fn get_strategy_file_path(filename: &str) -> PathBuf {
-        let mut path = PathBuf::new();
-        path.push(STRATEGY_FOLDER);
-        path.push(filename);
-        path
-    }
 
 trait PlayerTrait {
     fn make_move(&mut self, update: &GameStatus) -> String;
@@ -214,13 +206,13 @@ impl ComputerLearner {
     }
 
     pub fn save(&self, filename: &str) {
-        let path = get_strategy_file_path(filename);
+        let path = get_file_path(filename, STRATEGY_FOLDER);
         save_with_relative_path(&self.strategy_by_state, path);
     }
 
     // let a: Strategy = open_with_relative_path::<Strategy>(file);
     pub fn load(filename: &str, is_learning: bool) -> ComputerLearner {
-        let path = get_strategy_file_path(filename);
+        let path = get_file_path(filename, STRATEGY_FOLDER);
         let a : HashMap<String, Strategy> = deserialize_from_relative_path(path);
         ComputerLearner {
             strategy_by_state: a,//open_with_relative_path(path),
@@ -280,7 +272,7 @@ pub struct ComputerPlayer {
 
 impl ComputerPlayer {
     pub fn load(filename: &str) -> ComputerPlayer {
-        let path = get_strategy_file_path(filename);
+        let path = get_file_path(filename, STRATEGY_FOLDER);
         let loaded_strategy_by_state : HashMap<String, Strategy> = deserialize_from_relative_path(path);
         
         fn key_value_mapper(initial : (&String, &Strategy)) -> (String, String) {

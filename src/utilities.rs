@@ -9,8 +9,14 @@ use std::io;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
-// pub fn get
+pub fn get_file_path(filename: &str, folder: &str) -> PathBuf {
+        let mut path = PathBuf::new();
+        path.push(folder);
+        path.push(filename);
+        path
+    }
 
+// pub fn get
 pub fn get_user_input_line(prompt: &str) -> String {
     println!("{}", prompt);
 
