@@ -6,6 +6,7 @@ use normal_game::play_game;
 
 type StateType = HashMap<String, Player>;
 const COMPUTER_NAME_LENGTH_LIMIT: usize  = 10;
+const TRAINING_FOLDER: &str  = r"training_regime";
 
 pub fn run() {
     let mut state: StateType = HashMap::new();
@@ -135,6 +136,10 @@ fn two_player_game(state: &mut StateType) -> &mut StateType {
 }
 fn train_computers(state: &mut StateType) -> &mut StateType {
     let filename = get_user_input_line("Enter filename of training regime:");
+    let repeats: u32 = get_user_input_line("How many times do you want to run it?").trim().parse().unwrap();
+    let path = get_file_path(&filename, TRAINING_FOLDER);
+    let regime_string = load_with_relative_path(path);
+    let regime_slip: Vec<&str> = regime_string.split('\n').into_iter();
 
     state
 }
