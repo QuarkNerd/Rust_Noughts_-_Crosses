@@ -4,6 +4,8 @@ use menu::*;
 use std::collections::HashMap;
 use normal_game::play_game;
 
+use std::time::{Duration, Instant};
+
 type StateType = HashMap<String, Player>;
 const COMPUTER_NAME_LENGTH_LIMIT: usize  = 10;
 const TRAINING_FOLDER: &str  = r"training_regime";
@@ -28,12 +30,12 @@ pub fn run() {
                         options: 
                             vec![
                                 MenuOption {
-                                    command: "o",
+                                    command: "1",
                                     description: "one player game (vs computer)",
                                     action: MenuOptionAction::Callback(one_player_game)
                                 },
                                 MenuOption {
-                                    command: "t",
+                                    command: "2",
                                     description: "two player game",
                                     action: MenuOptionAction::Callback(two_player_game)
                                 },
@@ -78,12 +80,12 @@ pub fn run() {
                                                         action: MenuOptionAction::Callback(new_learner)
                                                     },
                                                     MenuOption {
-                                                        command: "ll",
+                                                        command: "e",
                                                         description: "load a computer learner",
                                                         action: MenuOptionAction::Callback(load_learner)
                                                     },
                                                     MenuOption {
-                                                        command: "lp",
+                                                        command: "p",
                                                         description: "load a computer player",
                                                         action: MenuOptionAction::Callback(load_comp_player)
                                                     },
@@ -134,12 +136,28 @@ fn two_player_game(state: &mut StateType) -> &mut StateType {
 
     state
 }
+
 fn train_computers(state: &mut StateType) -> &mut StateType {
     let filename = get_user_input_line("Enter filename of training regime:");
     let repeats: u32 = get_user_input_line("How many times do you want to run it?").trim().parse().unwrap();
     let path = get_file_path(&filename, TRAINING_FOLDER);
     let regime_string = load_with_relative_path(path);
-    let regime_slip: Vec<&str> = regime_string.split('\n').into_iter();
+    let regime_vec: Vec<Vec<&str>> = regime_string.split('\n').into_iter().map(|x| x.split(' ').collect()).collect();
+
+    let now = Instant::now();
+    for _ in 1..repeats {
+        for instruction in (&regime_vec).into_iter() {
+            // temporary unsafe, needed to get 2 mutable refs to value inside Hashmap
+            unsafe {
+                let player_one = state.get_mut(instruction[0].trim()).unwrap() as *mut _;
+                let player_two = state.get_mut(instruction[1].trim()).unwrap() as *mut _;
+
+                play_game(&mut *player_one, &mut *player_two)
+            }
+        }
+    }
+    let new_now = Instant::now();
+    println!("{:?}", new_now.saturating_duration_since(now)); 
 
     state
 }
