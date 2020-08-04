@@ -69,3 +69,7 @@ pub fn map_a_hash_map<T,U, V, W>(original: &HashMap<T,U>, key_value_mapper: fn((
 
     new_hash_map
 }
+
+pub fn clear_a_terminal() {
+    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+}

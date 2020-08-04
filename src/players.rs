@@ -68,6 +68,7 @@ pub struct HumanPlayer {
 impl PlayerTrait for HumanPlayer {
     // don't need to make public because it's implied by use of a trait
     fn make_move(&mut self, update: &GameStatus) -> String {
+        clear_a_terminal();
         self.print_msg(&update.display_state);
         get_user_input_line("What is your next move?")
     }
@@ -79,6 +80,7 @@ impl PlayerTrait for HumanPlayer {
             Result::Lose => "You Lost, but.... how?",
         };
         self.print_msg(msg);
+        get_user_input_line("Continue?");
     }
 }
 
@@ -90,6 +92,7 @@ impl HumanPlayer {
     }
 
     fn print_msg(&self, msg: impl fmt::Display) {
+        clear_a_terminal();
         println!("{:-^30}\n{}\n{:-<30}", &self.identity, msg, "");
     }
 }

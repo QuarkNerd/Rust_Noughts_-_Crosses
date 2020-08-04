@@ -4,8 +4,6 @@ use menu::*;
 use std::collections::HashMap;
 use normal_game::play_game;
 
-use std::time::{Duration, Instant};
-
 type StateType = HashMap<String, Player>;
 const COMPUTER_NAME_LENGTH_LIMIT: usize  = 10;
 const TRAINING_FOLDER: &str  = r"training_regime";
@@ -144,7 +142,6 @@ fn train_computers(state: &mut StateType) -> &mut StateType {
     let regime_string = load_with_relative_path(path);
     let regime_vec: Vec<Vec<&str>> = regime_string.split('\n').into_iter().map(|x| x.split(' ').collect()).collect();
 
-    let now = Instant::now();
     for _ in 1..repeats {
         for instruction in (&regime_vec).into_iter() {
             // temporary unsafe, needed to get 2 mutable refs to value inside Hashmap
@@ -156,8 +153,6 @@ fn train_computers(state: &mut StateType) -> &mut StateType {
             }
         }
     }
-    let new_now = Instant::now();
-    println!("{:?}", new_now.saturating_duration_since(now)); 
 
     state
 }

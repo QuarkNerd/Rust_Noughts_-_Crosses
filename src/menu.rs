@@ -52,6 +52,7 @@ pub fn show_menu<'a, T>(menu: &MenuSection<'a, &'a mut T>, state: &'a mut T) -> 
     let options = &menu.options;
 
     loop {
+        clear_a_terminal();
         let preamble_return = (menu.preamble_generator)(state);
         state = preamble_return.0;
         let mut prompt = preamble_return.1;
@@ -61,12 +62,12 @@ pub fn show_menu<'a, T>(menu: &MenuSection<'a, &'a mut T>, state: &'a mut T) -> 
             prompt.push_str(&format!("{}: {} \n", &menu_item.command, &menu_item.description));
         }
 
-        let mut input;
-        let mut selected_option: Option<&MenuOption<&mut T>> = None;
+        let mut input = get_user_input_line(&prompt);
+        let mut selected_option = options.iter().find(|&x| x.command == input);
 
         while selected_option.is_none() {
-           input = get_user_input_line(&prompt);
-           selected_option = options.iter().find(|&x| x.command == input);
+            input = get_user_input_line("There was an error understanding that, please try again");
+            selected_option = options.iter().find(|&x| x.command == input);
         }
 
         match &selected_option.unwrap().action {
