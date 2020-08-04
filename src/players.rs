@@ -55,7 +55,11 @@ impl fmt::Display for Player {
                 string = format!("Computer Learner - Learning: {}", x.is_learning);
                 string.as_str()
             },
-            Player::ComputerPlayer(_) => "Computer Player"
+            Player::ComputerPlayer(x) => { 
+                let res = &x.results_tracking;
+                string = format!("Computer Player - {} - {} - {}", res[&Result::Win], res[&Result::Draw], res[&Result::Lose]);
+                string.as_str()
+            }
         };
         write!(f, "{}", disp)
     }
@@ -270,7 +274,7 @@ impl PlayerTrait for ComputerLearner {
 // a computer player will load a strategy and only chooses the best option at each stage
 pub struct ComputerPlayer {
     strategy_by_state: HashMap<String, String>,
-    results_tracking: HashMap<Result, u32>
+    pub results_tracking: HashMap<Result, u32>
 }
 
 impl ComputerPlayer {
