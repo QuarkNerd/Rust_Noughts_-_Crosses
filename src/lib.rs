@@ -158,14 +158,14 @@ fn train_computers(state: &mut StateType) -> &mut StateType {
 }
     
 fn new_learner(state: &mut StateType) -> &mut StateType {
-    let name = get_user_input_line("What do you want to call it?");
+    let name = get_a_valid_name();
     state.insert(name, Player::ComputerLearner(ComputerLearner::new(true)));
 
     state
 }
 
 fn load_learner(state: &mut StateType) -> &mut StateType {
-    let name = get_user_input_line("What do you want to call it?");
+    let name = get_a_valid_name();
     let filename = get_user_input_line("What file do you want to load from?");
     state.insert(name, Player::ComputerLearner(ComputerLearner::load(filename.as_str(), true)));
 
@@ -173,11 +173,21 @@ fn load_learner(state: &mut StateType) -> &mut StateType {
 }
 
 fn load_comp_player(state: &mut StateType) -> &mut StateType {
-    let name = get_user_input_line("What do you want to call it?");
+    let name = get_a_valid_name();
     let filename = get_user_input_line("What file do you want to load from?");
     state.insert(name, Player::ComputerPlayer(ComputerPlayer::load(filename.as_str())));
 
     state
+}
+
+fn get_a_valid_name() -> String {
+    let mut name = get_user_input_line("What do you want to call it? (Max 10 character)");
+
+    while name.chars().count() > COMPUTER_NAME_LENGTH_LIMIT ||  name.chars().count() == 0 {
+        name = get_user_input_line("That is invalid, please try again");
+    };
+
+    name
 }
 
 fn toggle_learning(state: &mut StateType) -> &mut StateType {
